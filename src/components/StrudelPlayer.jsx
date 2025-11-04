@@ -22,28 +22,16 @@ import SourcePanel from './menu_controls/SourcePanel';
 import ConsolePanel from './menu_controls/ConsolePanel';
 import { setGlobalCPM, StrudelSetup } from './StrudelSetup';
 import { handlePlay, handleStop, handleProc, handleProcPlay, handleReset, Proc, setGlobalVolume} from './StrudelSetup';
+import base from './BaseSettings';
 import userEvent from "@testing-library/user-event";
+import { stringifyValues } from "@strudel/core";
+import { theme } from "@strudel/codemirror";
 
 let defaultTune = stranger_tune;
 
 let strudelRef = null;
 let globalEditor = null;
 let StrudelDemoThingo = null;
-
-//let volumeControlRef = null;
-
-// export const setGlobalVolume = (volume) => {
-//     console.log("new setVolume used");
-//     const ctx = getAudioContext();
-//     if (volumeControlRef == null){
-//         volumeControlRef = ctx.createGain(); // volume based on gain, have to create it like so
-//         volumeControlRef.connect(ctx.destination);
-//     } else {
-//         console.log("failed condition checker in setGlobalVolume");
-//     }
-//     volumeControlRef.gain.value = volume;
-//     console.log("volumeControlRef.gain.value - " + volumeControlRef.gain.value);
-// }
 
 // strudelRef references the strudel/globaleditor 
 // this is basically the new StrudelDemo from App.js
@@ -53,20 +41,21 @@ function StrudelPlayer() {
     //let strudelRef = useRef();
     const hasRun = useRef(false);
     const [ songText, setSongText ] = useState("");
-    const [ activeBtn, setActiveBtn ] = useState("controlBtn")
+    const [ activeBtn, setActiveBtn ] = useState(base.DEFAULT_MENU);
     const [ errorText, setErrorText ] = useState("");
 
     // audio_controls
-    const [ volume, setVolume ] = useState(0.5);
-    const [ cpm, setCPM ] = useState(120);
+    const [ volume, setVolume ] = useState(base.DEFAULT_VOLUME);
+    const [ cpm, setCPM ] = useState(base.DEFAULT_CPM);
 
     // dj_controls
-    const [ themeDropdown, setThemeDropdown] = useState("Dark"); // light is default for maximum effect
-    const [ codeFontSize, setCodeFontSize ] = useState(14);
+    const [ themeDropdown, setThemeDropdown] = useState(base.DEFAULT_THEME); // light is default for maximum effect
+    const [ codeFontSize, setCodeFontSize ] = useState(base.DEFAULT_FONT_SIZE);
 
     // on load the player needs to setup the strudel
     useEffect((e) => {
         console.log("First useEffect in StrudelPlayer called");
+        document.getElementById("consolePanelText").innerText = "";
 
         if (!hasRun.current) {
             console.log("hasRun is false; setting up Strudel");
@@ -82,11 +71,16 @@ function StrudelPlayer() {
         
         console.log("Second useEffect in StrudelPlayer called");
         onHandleFontSize();
-        //document.getElementById("editor").style.cssText = `a:display: block; background-color: var(--background); font-size: `+codeFontSize+`px; font-family: monospace;`;
-        
-        //document.getElementById("proc").style = `resize: none; font-size: `+codeFontSize+`px;`;
+
+        // add listener to print logs into console panel
+        //document.getElementById("consolePanelText").addEventListener("useState", onHandleConsolePanel(e));
         
     });
+
+    // broken
+    function onHandleConsolePanel(e) {
+        //document.getElementById("consolePanelText").innerText += "\n"+e+"\n";
+    }
 
     const [ showErrText, setShowErrText ] = useState(false) // for later use
     const [ settings, setSetting ] = useState() // unused
@@ -101,6 +95,7 @@ function StrudelPlayer() {
         //setTheme((themeDropdown === "Light" ? "Dark" : "Light"));
     }
 
+    // useless
     function handleSettings(codeString) {
         console.log("handleSettings is being called in StrudelPlayer???");
         strudelRef.current.setCode(codeString);
@@ -114,24 +109,26 @@ function StrudelPlayer() {
         document.getElementById("proc").style.cssText = `resize: none; font-size: `+codeFontSize+`px;`+`padding-left:`+padding+`px;`;
     }
 
+    // resets both LHS panel (editor and processed text)
     function handleResetCode() {
         setSongText(stranger_tune);
-        setCodeFontSize(14);
+        document.getElementById("proc").value=stranger_tune;
         Proc();
     }
 
+    // will reset controls to default; not the loaded settings.
     function onHandleResetControls() {
         console.log("onHandleResetControls called");
-        setCodeFontSize(14);
-        
-        setVolume(0.5);
-        setThemeDropdown("Dark");
-        
-        setGlobalVolume(0.5);
-        setGlobalCPM(120);
-        document.getElementById("checkbox_1").checked = document.getElementById("checkbox_1").defaultChecked;
-        document.getElementById("checkbox_2").checked = document.getElementById("checkbox_2").defaultChecked;
-
+        setCodeFontSize(base.DEFAULT_FONT_SIZE);
+        setVolume(base.DEFAULT_VOLUME);
+        setCPM(base.DEFAULT_CPM);
+        setThemeDropdown(base.DEFAULT_THEME);
+        setGlobalVolume(base.DEFAULT_VOLUME);
+        setGlobalCPM(base.DEFAULT_CPM);
+        if (base.DEBUG_MODE) {
+            document.getElementById("checkbox_1").checked = document.getElementById("checkbox_1").defaultChecked;
+            document.getElementById("checkbox_2").checked = document.getElementById("checkbox_2").defaultChecked;
+        }
     }
 
     // TODO: this is messy
@@ -166,14 +163,162 @@ function StrudelPlayer() {
         setGlobalCPM(newCPM); // strudel player volume
     };
 
-    function exportJSON() {
+    // creates JSON-valid data to save as a JSON file
+    function onHandleExportJSON() {
         console.log("exportJSON() called");
-        let docString = document.getElementById('proc').value;
-        alert(docString); //this needs to write to a file or smth, and then download
+
+        let exportJSON = {
+            "volume": volume,
+            "cpm": cpm,
+            "fontSize": codeFontSize,
+            "theme": themeDropdown,
+            "checkbox1": document.getElementById("checkbox_1").checked,
+            "checkbox2": document.getElementById("checkbox_2").checked
+        };
+
+        const localeTime = new Date().toLocaleTimeString();
+        let fileName = "Strudel_Settings_"+localeTime;
+
+        const blob = new Blob([JSON.stringify(exportJSON, null, 2)], { type: 'application/json' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+
+        console.log("exportJSON : " + stringifyValues(exportJSON));
     }
 
-    function importJSON() {
-        console.log("importJSON() called");
+    // takes an uploaded file, verifies it is valid, and outputs as dict to be read into settings
+    function onHandleImportJSON(file) {
+        console.log("onHandleImportJSON() called");
+
+        if (!file) {
+            alert("No file selected. Please choose a JSON file.", "error");
+            return;
+        }
+
+        if (!file.type.endsWith("json")) {
+            alert("Unsupported file type. Please select a JSON file.", "error");
+            return;
+        }
+
+        // read the file
+        const reader = new FileReader();
+        reader.onload = () => {
+            const readableJSON = JSON.parse(reader.result);
+            onHandleLoadSettings(readableJSON);
+        };
+        reader.onerror = () => {
+            alert("Error reading the file. Please try again.", "error");
+        };
+        // this *must* be here for reader.onload to work; it sets reader.result
+        reader.readAsText(file);
+    }
+
+    function onHandleLoadSettings(settingsJSON) {
+        console.log("onHandleLoadSettings called");
+        console.log("settingsJSON:\n" + settingsJSON);
+
+        let validKeys = validateSettingKeys(settingsJSON);
+        if (!validKeys) {
+            return;
+        }
+
+        let withinLimits = validateSettingLimits(settingsJSON);
+        if (!withinLimits) {
+            return;
+        }
+        
+        console.log("Loaded JSON data keys are valid and the corresponding data values are within acceptable limits.");
+
+        // load the settings
+        console.log("onHandleResetControls called");
+        try {
+            setCodeFontSize(settingsJSON["fontSize"]);
+            setVolume(settingsJSON["volume"]);
+            setCPM(settingsJSON["cpm"]);
+            setThemeDropdown(settingsJSON["theme"]);
+            setGlobalVolume(settingsJSON["volume"]);
+            setGlobalCPM(settingsJSON["cpm"]);
+            if (base.DEBUG_MODE) {
+                document.getElementById("checkbox_1").checked = settingsJSON["checkbox1"];
+                document.getElementById("checkbox_2").checked = settingsJSON["checkbox2"];
+            }
+        } catch (e) {
+            console.log("somehow failed the try-catch to load settings...?");
+        }
+    }
+
+    // compare settings to hard coded ranges and what settings exist to see if we can load it
+    function validateSettingKeys(settingsJSON) {
+        let errorAlertText = "Imported file contains insufficient data to load settings.";
+        console.log("validateSettingKeys called");
+        // what settings we need; ignore other keys
+        const neededKeysList = [ "volume", "cpm", "fontSize", "theme", "checkbox1", "checkbox2" ];
+        const missingKeys = [];
+
+        var listOfFileKeys = [];
+        for (let key in settingsJSON) {
+            listOfFileKeys.push(key);
+        }
+
+        console.log("listOfFileKeys : " + listOfFileKeys);
+        // ensure we have the correct keys
+        for (let i in neededKeysList) {
+            if ( !(listOfFileKeys.includes(neededKeysList[i])) ) {
+                console.log("missing - : " + neededKeysList[i]);
+                missingKeys.push(neededKeysList[i]);
+            } else {
+                console.log("listOfFileKeys[i] is found inside : " + listOfFileKeys[i]);
+            }
+        }
+
+        let count = 1;
+        if (missingKeys.length == 0){
+            console.log("valid; no missing keys");
+            return true;
+        } else {
+            for (let i in missingKeys) {
+                console.log("settingsJSON is missing key : " + missingKeys[i]);
+                errorAlertText += ("\n"+count+" : File is missing key '"+missingKeys[i]+"'");
+                count++;
+            }
+            alert(errorAlertText);
+            return false;
+        }
+    }
+
+    // compare settings to limits
+    function validateSettingLimits(settingsJSON) {
+        console.log("validateSettingLimits called");
+        let isValid = true; // have to be careful as it is valid by default; *never* set this to true anywhere else
+
+        let errorAlertText = "Imported file contains invalid data.";
+        let count = 0;
+
+        // if setting is valid, isValid is true. We set isValid to false on the inverse
+        if (!( settingsJSON["volume"] < base.VOLUME_MAX )) 
+            {isValid = false; count++; errorAlertText += ("\n"+count+" : volume ("+settingsJSON["volume"]+") > maximum ("+base.VOLUME_MAX+")"); }
+        if (!( settingsJSON["volume"] > base.VOLUME_MIN )) 
+            {isValid = false; count++; errorAlertText += ("\n"+count+" : volume ("+settingsJSON["volume"]+") < minimum ("+base.VOLUME_MIN+")"); }
+        if (!( settingsJSON["fontSize"] < base.FONT_SIZE_SLIDER_MAX )) 
+            {isValid = false; count++; errorAlertText += ("\n"+count+" : fontSize ("+settingsJSON["fontSize"]+") > maximum ("+base.FONT_SIZE_SLIDER_MAX+")"); }
+        if (!( settingsJSON["fontSize"] > base.FONT_SIZE_SLIDER_MIN )) 
+            {isValid = false; count++; errorAlertText += ("\n"+count+" : fontSize ("+settingsJSON["fontSize"]+") < minimum ("+base.FONT_SIZE_SLIDER_MIN+")"); }
+        if (!( ["Debug", "Light", "Dark"].includes(settingsJSON["theme"]) )) 
+            {isValid = false; count++; errorAlertText += ("\n"+count+" : no theme"); }
+        if (!( [true, false].includes(settingsJSON["checkbox1"]) )) 
+            {isValid = false; count++; errorAlertText += ("\n"+count+" : no checkbox1 value"); }
+        if (!( [true, false].includes(settingsJSON["checkbox2"]) )) 
+            {isValid = false; count++; errorAlertText += ("\n"+count+" : no checkbox2 value"); }
+        
+        if (!isValid) {
+            alert(errorAlertText);
+        }
+
+        return isValid;
     }
 
     return (
@@ -229,15 +374,17 @@ function StrudelPlayer() {
                                     /> */}
                                     <div className="importExportBtns mb-4" role="group" id="menuPanelStuff1" aria-label="Control panel">
                                         <div className="row" id="menuPanel">
-                                            <div className="btn-group" role="group" id="" aria-label="Menu buttons">
+                                            <div className="btn-group" role="group" id="">
                                                 <button href="#" style={{ textAlign:'center', maxWidth:'25%' }} id="exportJSON" className="btn container ioBtnRow" onClick={(e) => {
-                                                    //exportJSON();
+                                                    onHandleExportJSON();
                                                 }}>Export JSON</button>
-                                                <button className="btn container ioBtnRow" style={{ textAlign:'center', maxWidth:'25%' }} id="importJSON" onClick={(e) => {
-                                                    //importJSON();
-                                                }}>Import JSON</button>
+                                                <input hidden id="fileUploadElement" value={""} onChange={(e) => {
+                                                    const file = e.target.files[0];
+                                                    onHandleImportJSON(file);
+                                                }} accept=".json" type="file" />
+                                                <label for="fileUploadElement" className="btn container ioBtnRow" style={{ textAlign:'center', maxWidth:'25%' }} id="importJSON" >Import JSON</label>
                                                 <div className="container ioBtnRow dontShow" disabled style={{ textAlign:'center', width:'5%' }} ></div>
-                                                <button id="reset" className="btn container ioBtnRow" onClick={handleResetCode} style={{ textAlign:'center', maxWidth:'33%' }}>Restore Default</button>
+                                                <button id="reset" className="btn container ioBtnRow" onClick={handleResetCode} style={{ textAlign:'center', maxWidth:'40%' }}>Restore Default Song</button>
                                             </div>
                                         </div>
                                     </div>

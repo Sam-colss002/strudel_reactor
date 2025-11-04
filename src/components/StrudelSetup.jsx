@@ -12,6 +12,7 @@ import console_monkey_patch from '../console-monkey-patch';
 let strudelEditor = null;
 let bigVolume = null;
 let bigCPM = null;
+let oldProcText = null;
 
 let isProccessed = false;
 
@@ -21,14 +22,16 @@ export const Proc = () => {
     console.log("Proc() triggered");
     isProccessed = true;
     let procText = document.getElementById("proc").value;
+    oldProcText = document.getElementById("proc").value;
     if (!procText || !strudelEditor) {
         strudelEditor.setCode(stranger_tune);
         return;
     } else {
         let volumeToUse = parseFloat(bigVolume);
         let cpmToUse = parseInt(bigCPM);
-        console.log("this is: " + (procText += "\n" + "setcpm("+cpmToUse/4+")" + "\n" + "all(x => x.gain("+volumeToUse+"));"));
-        strudelEditor.setCode((procText += "\n" + "setcpm("+cpmToUse/4+")" + "\n" + "all(x => x.gain("+volumeToUse+"));"));
+        //console.log("this is: " + (procText += "\n" + "setcpm("+cpmToUse/4+")" + "\n" + "all(x => x.gain("+volumeToUse+"));"));
+        strudelEditor.setCode(procText);
+        //strudelEditor.setCode((procText += "\n" + "setcpm("+cpmToUse/4+")" + "\n" + "all(x => x.gain("+volumeToUse+"));"));
     }
 };
 
@@ -122,18 +125,25 @@ export const setGlobalCPM = (value) => {
 
 }
 
+// this is actually acting as a process button now due to how i'm hiding settings -- maybe a comment to target the lines?
 export const handlePlay = () => {
+    console.log("called handlePlay");
     if (strudelEditor) {
-        strudelEditor.evaluate();
-        if (volumeControlRef) {
-            //console.log("Playing with volume : " + volumeControlRef.gain.value); // proving volume saved in state (will need to update controlPanel tho)
-            let procText = document.getElementById("proc").value;
-            let volumeToUse = parseFloat(bigVolume);
-            let cpmToUse = parseInt(bigCPM);
-            console.log("so it should be using : " + (procText += "\n" + "all(x => x.gain("+volumeToUse+"));"));
-            strudelEditor.setCode((procText += "\n" + "setcpm("+cpmToUse/4+")" + "\n" + "all(x => x.gain("+volumeToUse+"));"));
+        strudelEditor.stop();
+        let procText = document.getElementById("proc").value;
+        let volumeToUse = parseFloat(bigVolume);
+        let cpmToUse = parseInt(bigCPM);
+
+        // adds settings to code for use, then removes them to keep them hidden from user
+        if (oldProcText) {
+            strudelEditor.setCode((oldProcText + "\n" + "setcpm("+cpmToUse/4+")" + "\n" + "all(x => x.gain("+volumeToUse+"));"));
             strudelEditor.evaluate();
-            strudelEditor.setCode(procText);
+            strudelEditor.setCode(oldProcText);
+            oldProcText = null;
+        } else {
+            //strudelEditor.setCode((procText + "\n" + "setcpm("+cpmToUse/4+")" + "\n" + "all(x => x.gain("+volumeToUse+"));"));
+            strudelEditor.evaluate();
+            //strudelEditor.setCode(procText);
         }
     } else {
         console.log("Failed condition checker in handlePlay");
@@ -141,6 +151,7 @@ export const handlePlay = () => {
 }
 
 export const handleStop = () => {
+    console.log("called handleStop");
     if (strudelEditor) {
         strudelEditor.stop();
     } else {
@@ -149,9 +160,9 @@ export const handleStop = () => {
 }
 
 export const handleProc = () => {
+    console.log("called handleProc");
     if (strudelEditor) {
-        handleStop();
-        //console.log("handleProc triggered");
+        //handleStop();
         Proc();
     } else {
         console.log("Failed condition checker in handleProc");
@@ -159,9 +170,8 @@ export const handleProc = () => {
 }
 
 export const handleProcPlay = async () => {
+    console.log("called handleProcPlay");
     await initAudioOnFirstClick();
-    
-    console.log("Called handleProcPlay");
     if (strudelEditor) {
         handleStop();
         //console.log("handleProcPlay triggered");
@@ -170,20 +180,22 @@ export const handleProcPlay = async () => {
         let procText = document.getElementById("proc").value;
         let volumeToUse = parseFloat(bigVolume);
         let cpmToUse = parseInt(bigCPM);
-        console.log("working");
-        console.log("so it should be using : " + (procText += "\n" + "all(x => x.gain("+volumeToUse+"));"));
-        strudelEditor.setCode((procText += "\n" + "setcpm("+cpmToUse/4+")" + "\n" + "all(x => x.gain("+volumeToUse+"));"));
+        //strudelEditor.setCode((procText += "\n" + "setcpm("+cpmToUse/4+")" + "\n" + "all(x => x.gain("+volumeToUse+"));"));
+
+        strudelEditor.setCode((procText + "\n" + "setcpm("+cpmToUse/4+")" + "\n" + "all(x => x.gain("+volumeToUse+"));"));
         strudelEditor.evaluate();
         strudelEditor.setCode(procText);
+
+        //strudelEditor.setCode(procText);
     } else {
         console.log("Failed condition checker in handleProcPlay");
     }
 }
 
 export const handleReset = () => {
+    console.log("called handleReset");
     handleStop();
     strudelEditor.setCode(stranger_tune);
-    console.log("handleReset triggered");
     // @TODO: this needs to reset settings, too! otherwise we're allowing for errors 
     //strudelRef.current.setCode(defaultTune);
 }
