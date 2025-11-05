@@ -5,8 +5,11 @@ function MorePanel({  }) {
         <>
             <div className="" role="group" id="menuPanelStuff2" aria-label="Source panel">
                 <div className="mt-5 menuJustTextBox">
-                    <p>source panel</p>
-                    <a href="https://github.com/Sam-colss002/strudel_reactor">Github</a>
+                    <p className="">
+                        The Github Repository for this project and its various builds can be found here: <a href="https://github.com/Sam-colss002/strudel_reactor">Github</a>
+
+
+                    </p>
                 </div>
             </div>
         </>

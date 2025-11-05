@@ -295,6 +295,11 @@ html, body {
   width:10px !important;
 }
 
+.menuJustTextBox {
+  padding-left:3vh;
+  padding-right:3vh;
+}
+
 .input-group-text {
   background-color: var(--tertiaryColour) !important;
   border-color: var(--tertiaryColour) !important;
