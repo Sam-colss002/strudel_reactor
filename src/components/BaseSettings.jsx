@@ -13,6 +13,10 @@ let k = parseFloat(0.01);
 let l = false; // determines whether or not debug theme and various debug functions are included
 let m = true;
 let n = false;
+let o = parseFloat(0.0);
+let p = parseFloat(60.0); // idk what max should be
+let q = parseFloat(0.0);
+let r = parseFloat(0.1);
 
 const base = {
     VOLUME_MIN: a,
@@ -29,7 +33,12 @@ const base = {
     DEBUG_MODE: l,
     // replace these with whatever the checkboxes are actually used for later
     CHECKBOX_1: m,
-    CHECKBOX_2: n
+    CHECKBOX_2: n,
+
+    REVERB_MIN: o,
+    REVERB_MAX: p,
+    DEFAULT_REVERB: q,
+    REVERB_SLIDER_STEP: r
 };
 
 export default base;

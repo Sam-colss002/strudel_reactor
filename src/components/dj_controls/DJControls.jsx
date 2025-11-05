@@ -1,55 +1,17 @@
 import { useState } from "react";
-import { setGlobalVolume } from "../StrudelSetup";
-import ThemDropdown from "./ThemeDropdown";
 import base from '../BaseSettings';
+import ReverbSlider from "./ReverbSlider";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import CodeFontSizeSlider from "./CodeFontSizeSlider";
-import ResetControlsButton from "./ResetControlsButton";
 
-// this handles controls for the editor (i.e., fontsize or whatever i do here)
-export function DJControls({ codeFontSize, setCodeFontSize, themeDropdown, setThemeDropdown, onHandleGeneric, onHandleTheme, onHandleFontSize, onHandleResetControls, theme }) {
+export function DJControls({ reverb, setReverb, onHandleReverb, onHandleGeneric }) {
     return (
         <>
-            <div className="container dj-controls bg-foreground" onChange={onHandleGeneric} data-theme={theme}>
+            <div className="dj-controls bg-foreground" onChange={onHandleGeneric}>
                 <br/>
-                <div className="mt-4 mb-4 h6 bg-foreground">DJ Controls</div>
-                
-
-                <div className="row mb-2">
-                    <div className="col bg-foreground">
-                        <ThemDropdown themeDropdown={themeDropdown} setThemeDropdown={setThemeDropdown} onHandleGeneric={onHandleGeneric} onHandleTheme={onHandleTheme}/>
-                    </div>
-                    <div className="col bg-foreground">
-                        <CodeFontSizeSlider codeFontSize={codeFontSize} setCodeFontSize={setCodeFontSize} onHandleGeneric={onHandleGeneric} onHandleFontSize={onHandleFontSize} />
-                    </div>
-                </div>
-
-                { (base.DEBUG_MODE) ? 
-                <div className="row mb-2 bg-foreground">
-                        {/* TODO: this does nothing! */}
-                    <div className="col bg-foreground">
-                        <input className="form-check-input" type="checkBox" name="aa" defaultChecked={base.CHECKBOX_1} id="checkbox_1" onChange={onHandleGeneric} /> {/*onChange={ProcAndPlay} */}
-                        <label className="form-check-label bg-foreground" htmlFor="checkbox_1">
-                            check1: a {/* p1 ON */}
-                        </label>
-                    </div>
-                    <div className="col mb-4 bg-foreground">
-                        <input className="form-check-input" type="checkBox" name="bb" defaultChecked={base.CHECKBOX_2} id="checkbox_2" onChange={onHandleGeneric} /> {/*onChange={ProcAndPlay} */}
-                        <label className="form-check-label bg-foreground" htmlFor="checkbox_2">
-                            check2: a {/* p1 HUSH */}
-                        </label>
-                    </div>
-                </div>
-                : null }
-                <br/>
-                <br/>
-                <br/>
-                
-                <div className="col mb-4 bg-foreground">
-                    < ResetControlsButton onHandleResetControls={onHandleResetControls} />    
-                </div>
+                {/* <div className="mb-4 h6 bg-foreground">DJ Controls</div> */}
+                <ReverbSlider reverb={reverb} setReverb={setReverb} onHandleReverb={onHandleReverb} />
             
             </div> {/* on update */}
             
