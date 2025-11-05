@@ -14,7 +14,7 @@ let l = false; // determines whether or not debug theme and various debug functi
 let m = true;
 let n = false;
 let o = parseFloat(0.0);
-let p = parseFloat(60.0); // idk what max should be
+let p = parseFloat(5.0); // idk what max should be
 let q = parseFloat(0.0);
 let r = parseFloat(0.1);
 
