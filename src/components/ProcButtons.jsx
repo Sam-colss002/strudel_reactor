@@ -7,8 +7,8 @@ function ProcButtons( { onProc, onProcPlay } ) {
             <div className="btn-group " role="group" aria-label="Process buttons">
                 {/* CTRL+ENTER & CTRL+.  to stop if these break */}
                 
-                <button id="process" className="btn btn-outline-info headerButtons" onClick={onProc}>Preprocess</button>
-                <button id="process_play" className="btn btn-outline-primary headerButtons" onClick={onProcPlay}>Proc & Play</button>
+                <button id="process" className="btn btn-group headerButtons" onClick={onProc}>Preprocess</button>
+                <button id="process_play" className="btn btn-group headerButtons" onClick={onProcPlay}>Proc & Play</button>
             </div>
         </>
     )

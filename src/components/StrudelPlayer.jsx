@@ -369,7 +369,6 @@ function StrudelPlayer() {
                             <div className="menuNavBar row">
                                 <MenuButtons theme={themeDropdown} defaultValue={activeBtn} onClick={(e) => {
                                     setActiveBtn(e)
-                                    //console.log("activeBtn : " + e);
                                 }}/>
                             </div>
                             <div className="rightPanel" id="rightPanel">
@@ -378,10 +377,6 @@ function StrudelPlayer() {
                                     < HelpPanel />
                                 </div>
                                 <div className="ControlPanel bg-foreground" id="rightPanel" style={{ display: (activeBtn === "controlBtn") ? 'block' : 'none' }}>
-                                    {/* < ControlPanel 
-                                        onUpdate={handleThisChange}
-                                        onHandleGeneric={onHandleGeneric}
-                                    /> */}
                                     <div className="importExportBtns mb-4" role="group" id="menuPanelStuff1" aria-label="Control panel">
                                         <div className="row" id="menuPanel">
                                             <div className="btn-group" role="group" id="">
