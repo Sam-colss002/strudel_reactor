@@ -377,7 +377,7 @@ function StrudelPlayer() {
                                     < HelpPanel />
                                 </div>
                                 <div className="ControlPanel" id="rightPanel" style={{ display: (activeBtn === "controlBtn") ? 'block' : 'none' }}>
-                                    <div className=" mb-4" role="group" id="menuPanelStuff1" aria-label="Control panel">
+                                    <div className="" role="group" id="menuPanelStuff1" aria-label="Control panel">
                                         <div className="" id="menuPanel">
                                             <div className="row" role="group" id="">
                                                 <button href="#" style={{ textAlign:'center', maxWidth:'25%' }} id="exportJSON" className="btn container ioBtnRow" onClick={(e) => {
@@ -396,7 +396,7 @@ function StrudelPlayer() {
 
                                     <Accordion defaultActiveKey={['0']} alwaysOpen className="accordion accordion-flush">
                                         <Accordion.Item eventKey="0" className="accordion-flush">
-                                            <Accordion.Header className="accordionHeader accordion-flush mt-5 mb-4 audioControlHeading">Audio Controls</Accordion.Header>
+                                            <Accordion.Header className="accordionHeader accordion-flush mt-4 mb-4">Audio Controls</Accordion.Header>
                                             <Accordion.Body className="accordionBody accordion-flush" style={{ display:'full' }}>
                                                 <AudioControls 
                                                     volume={volume}
@@ -412,10 +412,19 @@ function StrudelPlayer() {
                                             </Accordion.Body>
                                         </Accordion.Item>
                                     </Accordion>
+
+                                    <Accordion defaultActiveKey={['0']} alwaysOpen className="accordion accordion-flush">
+                                        <Accordion.Item eventKey="0" className="accordion-flush">
+                                            <Accordion.Header className="accordionHeader accordion-flush mt-4">DJ Controls</Accordion.Header>
+                                            <Accordion.Body className="accordionBody accordion-flush" style={{ display:'full' }}>
+                                                aaaaaa
+                                            </Accordion.Body>
+                                        </Accordion.Item>
+                                    </Accordion>
                                     
                                     <Accordion defaultActiveKey={['0']} alwaysOpen className="accordion accordion-flush">
                                         <Accordion.Item eventKey="0" className="accordion-flush">
-                                            <Accordion.Header className="accordionHeader accordion-flush mt-5 audioControlHeading">Editor Controls</Accordion.Header>
+                                            <Accordion.Header className="accordionHeader accordion-flush mt-4">Editor Controls</Accordion.Header>
                                             <Accordion.Body className="accordionBody accordion-flush" style={{ display:'full' }}>
                                                 < EditorControls
                                                     codeFontSize={codeFontSize}

@@ -2,7 +2,7 @@ import base from '../BaseSettings';
 
 function CPMInput({ cpm, setCPM, onHandleCPM }) {
     return (
-        <div className="input-group mb-4">
+        <div className="input-group">
             <span className="input-group-text menu_label_subject" id="cpm_label">CPM</span>
             <input type="number" className="form-control menu_label_value p-2 bg-background text-foreground border-foreground" id="cpm_text_input" 
             placeholder={base.DEFAULT_CPM} min="0" defaultValue={base.DEFAULT_CPM} 
