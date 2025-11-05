@@ -6,7 +6,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import CodeFontSizeSlider from "./CodeFontSizeSlider";
 
-export function DJControls({ codeFontSize, setCodeFontSize, themeDropdown, setThemeDropdown, onHandleGeneric, onHandleTheme, onHandleFontSize, theme }) {
+export function EditorControls({ codeFontSize, setCodeFontSize, themeDropdown, setThemeDropdown, onHandleGeneric, onHandleTheme, onHandleFontSize, theme }) {
     return (
         <>
             <div className="dj-controls bg-foreground" onChange={onHandleGeneric} data-theme={theme}>
@@ -50,4 +50,4 @@ export function DJControls({ codeFontSize, setCodeFontSize, themeDropdown, setTh
     )
 };
 
-export default DJControls;
+export default EditorControls;

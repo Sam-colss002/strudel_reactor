@@ -3,7 +3,7 @@ import { stranger_tune } from '../tunes';
 import console_monkey_patch from '../console-monkey-patch';
 
 import AudioControls from './audio_controls/AudioControls';
-import DJControls from './dj_controls/DJControls';
+import EditorControls from './editor_controls/EditorControls';
 import MenuButtons from './menu_controls/MenuButtons';
 import PlayButtons from './PlayButtons';
 import ProcButtons from './ProcButtons';
@@ -17,7 +17,7 @@ import { setGlobalCPM, StrudelSetup } from './StrudelSetup';
 import { handlePlay, handleStop, handleProc, handleProcPlay, handleReset, Proc, setGlobalVolume} from './StrudelSetup';
 import base from './BaseSettings';
 import { stringifyValues } from "@strudel/core";
-import ResetControlsButton from "./dj_controls/ResetControlsButton";
+import ResetControlsButton from "./editor_controls/ResetControlsButton";
 
 import Accordion from 'react-bootstrap/Accordion';
 import { useAccordionButton } from 'react-bootstrap/AccordionButton';
@@ -415,9 +415,9 @@ function StrudelPlayer() {
                                     
                                     <Accordion defaultActiveKey={['0']} alwaysOpen className="accordion accordion-flush">
                                         <Accordion.Item eventKey="0" className="accordion-flush">
-                                            <Accordion.Header className="accordionHeader accordion-flush mt-5 audioControlHeading">DJ Controls</Accordion.Header>
+                                            <Accordion.Header className="accordionHeader accordion-flush mt-5 audioControlHeading">Editor Controls</Accordion.Header>
                                             <Accordion.Body className="accordionBody accordion-flush" style={{ display:'full' }}>
-                                                < DJControls
+                                                < EditorControls
                                                     codeFontSize={codeFontSize}
                                                     setCodeFontSize={setCodeFontSize}
                                                     themeDropdown={themeDropdown}
