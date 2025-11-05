@@ -180,11 +180,17 @@ html, body {
   
 }
 
+.HelpPanel, .ControlPanel, .SourcePanel, .ControlPanel, .importExportBtns {
+  background-color: var(--primaryColour) !important;
+  border-radius:0px !important;
+}
+
 /* for buttons on import/export/reset row */
 .ioBtnRow {
   color: var(--quaternaryColour) !important;
   background-color: var(--primaryColour) !important;
   border-color: var(--primaryColour) !important;
+  border-radius:0 !important;
 }
 
 .ioBtnRow:hover {

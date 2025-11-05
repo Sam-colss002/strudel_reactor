@@ -364,7 +364,7 @@ function StrudelPlayer() {
                             </div>
                         </div>
 
-                        <div className="col-md-4 bg-foreground">
+                        <div className="col container">
                             {/* the nav menu for right panel -- should control whats in box below on page and be highlighted when active */}
                             <div className="menuNavBar row">
                                 <MenuButtons theme={themeDropdown} defaultValue={activeBtn} onClick={(e) => {
@@ -373,13 +373,13 @@ function StrudelPlayer() {
                             </div>
                             <div className="rightPanel" id="rightPanel">
                                 {/* rather than selectively loading them, menu panel will just show and hide them respectively */}
-                                <div className="HelpPanel bg-foreground" style={{ display: (activeBtn === "helpBtn") ? 'block' : 'none' }}>
+                                <div className="HelpPanel" style={{ display: (activeBtn === "helpBtn") ? 'block' : 'none' }}>
                                     < HelpPanel />
                                 </div>
-                                <div className="ControlPanel bg-foreground" id="rightPanel" style={{ display: (activeBtn === "controlBtn") ? 'block' : 'none' }}>
-                                    <div className="importExportBtns mb-4" role="group" id="menuPanelStuff1" aria-label="Control panel">
-                                        <div className="row" id="menuPanel">
-                                            <div className="btn-group" role="group" id="">
+                                <div className="ControlPanel" id="rightPanel" style={{ display: (activeBtn === "controlBtn") ? 'block' : 'none' }}>
+                                    <div className=" mb-4" role="group" id="menuPanelStuff1" aria-label="Control panel">
+                                        <div className="" id="menuPanel">
+                                            <div className="row" role="group" id="">
                                                 <button href="#" style={{ textAlign:'center', maxWidth:'25%' }} id="exportJSON" className="btn container ioBtnRow" onClick={(e) => {
                                                     onHandleExportJSON();
                                                 }}>Export JSON</button>
