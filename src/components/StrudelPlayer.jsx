@@ -4,6 +4,7 @@ import console_monkey_patch from '../console-monkey-patch';
 
 import AudioControls from './audio_controls/AudioControls';
 import EditorControls from './editor_controls/EditorControls';
+import DJControls from './dj_controls/DJControls';
 import MenuButtons from './menu_controls/MenuButtons';
 import PlayButtons from './PlayButtons';
 import ProcButtons from './ProcButtons';
@@ -13,7 +14,7 @@ import HelpPanel from './menu_controls/HelpPanel';
 //import ControlPanel from './panels/ControlPanel';
 import SourcePanel from './menu_controls/SourcePanel';
 import ConsolePanel from './menu_controls/ConsolePanel';
-import { setGlobalCPM, StrudelSetup } from './StrudelSetup';
+import { setGlobalCPM, setGlobalReverb, StrudelSetup } from './StrudelSetup';
 import { handlePlay, handleStop, handleProc, handleProcPlay, handleReset, Proc, setGlobalVolume} from './StrudelSetup';
 import base from './BaseSettings';
 import { stringifyValues } from "@strudel/core";
@@ -25,16 +26,7 @@ import Card from 'react-bootstrap/Card';
 
 let defaultTune = stranger_tune;
 
-let strudelRef = null;
-let globalEditor = null;
-let StrudelDemoThingo = null;
-
-// strudelRef references the strudel/globaleditor 
-// this is basically the new StrudelDemo from App.js
 function StrudelPlayer() {
-    //TODO: fix the fact that proc&play can play multiple overlapping strudels, lol
-
-    //let strudelRef = useRef();
     const hasRun = useRef(false);
     const [ songText, setSongText ] = useState("");
     const [ activeBtn, setActiveBtn ] = useState(base.DEFAULT_MENU);
@@ -45,28 +37,30 @@ function StrudelPlayer() {
     const [ cpm, setCPM ] = useState(base.DEFAULT_CPM);
 
     // dj_controls
+    const [ reverb, setReverb ] = useState(base.DEFAULT_REVERB);
+
+    // editor controls
     const [ themeDropdown, setThemeDropdown] = useState(base.DEFAULT_THEME); // light is default for maximum effect
     const [ codeFontSize, setCodeFontSize ] = useState(base.DEFAULT_FONT_SIZE);
 
     // on load the player needs to setup the strudel
     useEffect((e) => {
-        console.log("First useEffect in StrudelPlayer called");
-        document.getElementById("consolePanelText").innerText = "";
-
         if (!hasRun.current) {
+            console.log("\nLoading Strudel Player...");
+            document.getElementById("consolePanelText").innerText = "";
             console.log("hasRun is false; setting up Strudel");
             hasRun.current = true;
-            StrudelSetup(stranger_tune, setSongText, volume, cpm);
+            StrudelSetup(stranger_tune, setSongText);
+            setGlobalVolume(volume);
+            setGlobalCPM(cpm);
+            setGlobalReverb(reverb);
         }
-        setGlobalVolume(volume);
-        setGlobalCPM(cpm);
     }, []);
 
-    // handles setting changes
+
     useEffect((e) => {
-        
-        console.log("Second useEffect in StrudelPlayer called");
-        onHandleFontSize();
+        //console.log("Second useEffect in StrudelPlayer called");
+        onHandleFontSize(); // double call wont stop padding from not updating, so this has to be here
 
         // add listener to print logs into console panel
         //document.getElementById("consolePanelText").addEventListener("useState", onHandleConsolePanel(e));
@@ -79,34 +73,16 @@ function StrudelPlayer() {
     }
 
     const [ showErrText, setShowErrText ] = useState(false) // for later use
-    const [ settings, setSetting ] = useState() // unused
-
-    function handleThisChange(e) {
-        console.log("Handling change - " + e);
-    }
-    
-    // func being referenced from inside component function can't be a "function ..." it has to be a const
-    const onHandleTheme = (e) => {
-        console.log("Switched theme.");
-        //setTheme((themeDropdown === "Light" ? "Dark" : "Light"));
-    }
-
-    // useless
-    function handleSettings(codeString) {
-        console.log("handleSettings is being called in StrudelPlayer???");
-        strudelRef.current.setCode(codeString);
-    }
 
     function onHandleFontSize() {
         let padding = codeFontSize * 2;
-        // font size
         document.getElementById("editor").style.cssText = `a:display: block; background-color: var(--background); font-size: `+codeFontSize+`px; font-family: monospace;`;
-        //document.getElementById("proc").style.cssText = `resize: none; font-size: `+codeFontSize+`px;`+`paddingLeft:`+codeFontSize+`px;\``;
         document.getElementById("proc").style.cssText = `resize: none; font-size: `+codeFontSize+`px;`+`padding-left:`+padding+`px;`;
     }
 
     // resets both LHS panel (editor and processed text)
     function handleResetCode() {
+        console.log("Resetting editor")
         setSongText(stranger_tune);
         document.getElementById("proc").value=stranger_tune;
         Proc();
@@ -114,19 +90,23 @@ function StrudelPlayer() {
 
     // will reset controls to default; not the loaded settings.
     function onHandleResetControls() {
-        console.log("onHandleResetControls called");
+        console.log("Resetting controls");
         setCodeFontSize(base.DEFAULT_FONT_SIZE);
+        onHandleFontSize();
         setVolume(base.DEFAULT_VOLUME);
         setCPM(base.DEFAULT_CPM);
         setThemeDropdown(base.DEFAULT_THEME);
         setGlobalVolume(base.DEFAULT_VOLUME);
         setGlobalCPM(base.DEFAULT_CPM);
+        setReverb(base.DEFAULT_REVERB);
         document.getElementById("checkbox_1").checked = document.getElementById("checkbox_1").defaultChecked;
         document.getElementById("checkbox_2").checked = document.getElementById("checkbox_2").defaultChecked;
     }
 
-    // TODO: this is messy
+    // currently unused, and can be messy if used
     const onHandleGeneric = (e) => {
+        //console.log("\nSTOP CALLING onHandleGeneric!!");
+        return;
         let idString = e.target.id;
         // debug prints
         if (idString.startsWith("dropdown_")) {
@@ -141,17 +121,20 @@ function StrudelPlayer() {
         }
     }
 
+    const onHandleReverb = (e) => {
+        let newReverb = parseFloat(e.target.value);
+        setReverb(newReverb); // DJControls state
+        setGlobalReverb(newReverb); // strudel player volume
+    }
+
     const onHandleVolume = (e) => {
-        console.log("handleVolume (DJControls.jsx) called");
-        //document.getElementById("cm_line").setProperty('cm_line', `${10}px`);
-        let newVolume = parseFloat(e.target.value); // if only we could initialise variables as a type line in other languages :(
-        // does this need both?
+        let newVolume = parseFloat(e.target.value);
+
         setVolume(newVolume); // DJControls state
         setGlobalVolume(newVolume); // strudel player volume
     };
 
     const onHandleCPM = (e) => {
-        console.log("onHandleCPM (DJControls.jsx) called");
         let newCPM = parseFloat(e.target.value);
         setCPM(newCPM); // DJControls state
         setGlobalCPM(newCPM); // strudel player volume
@@ -159,20 +142,19 @@ function StrudelPlayer() {
 
     // creates JSON-valid data to save as a JSON file
     function onHandleExportJSON() {
-        console.log("exportJSON() called");
-
+        console.log("Exporting JSON...")
         let exportJSON = {
             "volume": volume,
             "cpm": cpm,
             "fontSize": codeFontSize,
             "theme": themeDropdown,
             "checkbox1": document.getElementById("checkbox_1").checked,
-            "checkbox2": document.getElementById("checkbox_2").checked
+            "checkbox2": document.getElementById("checkbox_2").checked,
+            "reverb": reverb
         };
 
         const localeTime = new Date().toLocaleTimeString();
         let fileName = "Strudel_Settings_"+localeTime;
-
         const blob = new Blob([JSON.stringify(exportJSON, null, 2)], { type: 'application/json' });
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -180,13 +162,11 @@ function StrudelPlayer() {
         link.download = fileName;
         document.body.appendChild(link);
         link.click();
-
-        console.log("exportJSON : " + stringifyValues(exportJSON));
     }
 
     // takes an uploaded file, verifies it is valid, and outputs as dict to be read into settings
     function onHandleImportJSON(file) {
-        console.log("onHandleImportJSON() called");
+        console.log("Importing JSON...");
 
         if (!file) {
             alert("No file selected. Please choose a JSON file.", "error");
@@ -230,12 +210,14 @@ function StrudelPlayer() {
         // load the settings
         console.log("onHandleResetControls called");
         try {
-            setCodeFontSize(settingsJSON["fontSize"]);
+            //setCodeFontSize(settingsJSON["fontSize"]);
+            onHandleFontSize();
             setVolume(settingsJSON["volume"]);
             setCPM(settingsJSON["cpm"]);
             setThemeDropdown(settingsJSON["theme"]);
             setGlobalVolume(settingsJSON["volume"]);
             setGlobalCPM(settingsJSON["cpm"]);
+            setReverb(settingsJSON["reverb"]);
             if (base.DEBUG_MODE) {
                 document.getElementById("checkbox_1").checked = settingsJSON["checkbox1"];
                 document.getElementById("checkbox_2").checked = settingsJSON["checkbox2"];
@@ -250,7 +232,7 @@ function StrudelPlayer() {
         let errorAlertText = "Imported file contains insufficient data to load settings.";
         console.log("validateSettingKeys called");
         // what settings we need; ignore other keys
-        const neededKeysList = [ "volume", "cpm", "fontSize", "theme", "checkbox1", "checkbox2" ];
+        const neededKeysList = [ "volume", "cpm", "fontSize", "theme", "checkbox1", "checkbox2", "reverb" ];
         const missingKeys = [];
 
         var listOfFileKeys = [];
@@ -284,22 +266,6 @@ function StrudelPlayer() {
         }
     }
 
-    function CustomToggle({ children, eventKey }) {
-        const decoratedOnClick = useAccordionButton(eventKey, () =>
-            console.log('totally custom!'),
-        );
-
-        return (
-            <button
-            type="button"
-            style={{ backgroundColor: 'pink' }}
-            onClick={decoratedOnClick}
-            >
-            {children}
-            </button>
-        );
-    }
-
     // compare settings to limits
     function validateSettingLimits(settingsJSON) {
         console.log("validateSettingLimits called");
@@ -323,7 +289,11 @@ function StrudelPlayer() {
             {isValid = false; count++; errorAlertText += ("\n"+count+" : no checkbox1 value"); }
         if (!( [true, false].includes(settingsJSON["checkbox2"]) )) 
             {isValid = false; count++; errorAlertText += ("\n"+count+" : no checkbox2 value"); }
-        
+        if (!( settingsJSON["reverb"] < base.REVERB_MAX )) 
+            {isValid = false; count++; errorAlertText += ("\n"+count+" : reverb ("+settingsJSON["reverb"]+") > maximum ("+base.REVERB_MAX+")"); }
+        if (!( settingsJSON["volume"] > base.REVERB_MIN )) 
+            {isValid = false; count++; errorAlertText += ("\n"+count+" : reverb ("+settingsJSON["reverb"]+") < minimum ("+base.REVERB_MIN+")"); }
+
         if (!isValid) {
             alert(errorAlertText);
         }
@@ -417,7 +387,12 @@ function StrudelPlayer() {
                                         <Accordion.Item eventKey="0" className="accordion-flush">
                                             <Accordion.Header className="accordionHeader accordion-flush mt-4">DJ Controls</Accordion.Header>
                                             <Accordion.Body className="accordionBody accordion-flush" style={{ display:'full' }}>
-                                                aaaaaa
+                                                < DJControls
+                                                    reverb={reverb}
+                                                    setReverb={setReverb}
+                                                    onHandleReverb={onHandleReverb}
+                                                    onHandleGeneric={onHandleGeneric}
+                                                />
                                             </Accordion.Body>
                                         </Accordion.Item>
                                     </Accordion>
@@ -433,7 +408,6 @@ function StrudelPlayer() {
                                                     setThemeDropdown={setThemeDropdown}
 
                                                     onHandleGeneric={onHandleGeneric}
-                                                    onHandleTheme={onHandleTheme}
                                                     onHandleFontSize={onHandleFontSize}
                                                     onHandleResetControls={onHandleResetControls}
                                                     theme={themeDropdown}

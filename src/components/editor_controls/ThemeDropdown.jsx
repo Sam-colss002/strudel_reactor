@@ -1,6 +1,6 @@
 import base from '../BaseSettings';
 
-function ThemeDropdown ({ themeDropdown, setThemeDropdown, onHandleTheme}) {
+function ThemeDropdown ({ themeDropdown, setThemeDropdown}) {
     const themesList = [ "Debug", "Light", "Dark" ];
 
     return (
@@ -9,9 +9,7 @@ function ThemeDropdown ({ themeDropdown, setThemeDropdown, onHandleTheme}) {
                     <span className="input-group-text menu_label_subject" aria-expanded="false">Theme</span>
                     <button className="form-control menu_label_value" style={{ textAlign: "left" }} id="theme_dropdown" data-bs-toggle="dropdown">{themeDropdown}</button>
                     <ul className="dropdown-menu" onClick={(e) => {
-                        // because of how this is catching them all, this technically counts the dropdown box itself when expanded
                         if (e.target.id !== ""){
-                            onHandleTheme(e);
                             themeDropdown = e.target.name;
                             setThemeDropdown( themeDropdown );
                         }
