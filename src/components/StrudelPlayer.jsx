@@ -1,11 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-// import { StrudelMirror } from '@strudel/codemirror';
-// import { evalScope } from '@strudel/core';
-// import { drawPianoroll } from '@strudel/draw';
-// import { initAudioOnFirstClick } from '@strudel/webaudio';
-// import { transpiler } from '@strudel/transpiler';
-// import { getAudioContext, webaudioOutput, registerSynthSounds } from '@strudel/webaudio';
-// import { registerSoundfonts } from '@strudel/soundfonts';
 import { stranger_tune } from '../tunes';
 import console_monkey_patch from '../console-monkey-patch';
 
@@ -23,9 +16,12 @@ import ConsolePanel from './menu_controls/ConsolePanel';
 import { setGlobalCPM, StrudelSetup } from './StrudelSetup';
 import { handlePlay, handleStop, handleProc, handleProcPlay, handleReset, Proc, setGlobalVolume} from './StrudelSetup';
 import base from './BaseSettings';
-import userEvent from "@testing-library/user-event";
 import { stringifyValues } from "@strudel/core";
-import { theme } from "@strudel/codemirror";
+import ResetControlsButton from "./dj_controls/ResetControlsButton";
+
+import Accordion from 'react-bootstrap/Accordion';
+import { useAccordionButton } from 'react-bootstrap/AccordionButton';
+import Card from 'react-bootstrap/Card';
 
 let defaultTune = stranger_tune;
 
@@ -125,10 +121,8 @@ function StrudelPlayer() {
         setThemeDropdown(base.DEFAULT_THEME);
         setGlobalVolume(base.DEFAULT_VOLUME);
         setGlobalCPM(base.DEFAULT_CPM);
-        if (base.DEBUG_MODE) {
-            document.getElementById("checkbox_1").checked = document.getElementById("checkbox_1").defaultChecked;
-            document.getElementById("checkbox_2").checked = document.getElementById("checkbox_2").defaultChecked;
-        }
+        document.getElementById("checkbox_1").checked = document.getElementById("checkbox_1").defaultChecked;
+        document.getElementById("checkbox_2").checked = document.getElementById("checkbox_2").defaultChecked;
     }
 
     // TODO: this is messy
@@ -290,6 +284,22 @@ function StrudelPlayer() {
         }
     }
 
+    function CustomToggle({ children, eventKey }) {
+        const decoratedOnClick = useAccordionButton(eventKey, () =>
+            console.log('totally custom!'),
+        );
+
+        return (
+            <button
+            type="button"
+            style={{ backgroundColor: 'pink' }}
+            onClick={decoratedOnClick}
+            >
+            {children}
+            </button>
+        );
+    }
+
     // compare settings to limits
     function validateSettingLimits(settingsJSON) {
         console.log("validateSettingLimits called");
@@ -388,30 +398,50 @@ function StrudelPlayer() {
                                             </div>
                                         </div>
                                     </div>
-                                    < AudioControls
-                                        volume={volume}
-                                        setVolume={setVolume}
-                                        cpm={cpm}
-                                        setCPM={setCPM}
 
-                                        onHandleGeneric={onHandleGeneric}
-                                        onHandleVolume={onHandleVolume}
-                                        onHandleCPM={onHandleCPM}
-                                        theme={themeDropdown}
-                                    />
+                                    <Accordion defaultActiveKey={['0']} alwaysOpen className="accordion accordion-flush">
+                                        <Accordion.Item eventKey="0" className="accordion-flush">
+                                            <Accordion.Header className="accordionHeader accordion-flush mt-5 mb-4 audioControlHeading">Audio Controls</Accordion.Header>
+                                            <Accordion.Body className="accordionBody accordion-flush" style={{ display:'full' }}>
+                                                <AudioControls 
+                                                    volume={volume}
+                                                    setVolume={setVolume}
+                                                    cpm={cpm}
+                                                    setCPM={setCPM}
+
+                                                    onHandleGeneric={onHandleGeneric}
+                                                    onHandleVolume={onHandleVolume}
+                                                    onHandleCPM={onHandleCPM}
+                                                    theme={themeDropdown}
+                                                />
+                                            </Accordion.Body>
+                                        </Accordion.Item>
+                                    </Accordion>
                                     
-                                    < DJControls
-                                        codeFontSize={codeFontSize}
-                                        setCodeFontSize={setCodeFontSize}
-                                        themeDropdown={themeDropdown}
-                                        setThemeDropdown={setThemeDropdown}
+                                    <Accordion defaultActiveKey={['0']} alwaysOpen className="accordion accordion-flush">
+                                        <Accordion.Item eventKey="0" className="accordion-flush">
+                                            <Accordion.Header className="accordionHeader accordion-flush mt-5 audioControlHeading">DJ Controls</Accordion.Header>
+                                            <Accordion.Body className="accordionBody accordion-flush" style={{ display:'full' }}>
+                                                < DJControls
+                                                    codeFontSize={codeFontSize}
+                                                    setCodeFontSize={setCodeFontSize}
+                                                    themeDropdown={themeDropdown}
+                                                    setThemeDropdown={setThemeDropdown}
 
-                                        onHandleGeneric={onHandleGeneric}
-                                        onHandleTheme={onHandleTheme}
-                                        onHandleFontSize={onHandleFontSize}
-                                        onHandleResetControls={onHandleResetControls}
-                                        theme={themeDropdown}
-                                    />
+                                                    onHandleGeneric={onHandleGeneric}
+                                                    onHandleTheme={onHandleTheme}
+                                                    onHandleFontSize={onHandleFontSize}
+                                                    onHandleResetControls={onHandleResetControls}
+                                                    theme={themeDropdown}
+                                                />
+                                            </Accordion.Body>
+                                        </Accordion.Item>
+                                    </Accordion>
+
+                                    <div className="col mt-4 bg-foreground">
+                                        < ResetControlsButton onHandleResetControls={onHandleResetControls} />    
+                                    </div>
+                                    
                                 </div>
                                 <div className="ConsolePanel bg-foreground" style={{ display: (activeBtn === "consoleBtn") ? 'block' : 'none' }}>
                                     < ConsolePanel />

@@ -256,14 +256,30 @@ html, body {
 .rightPanel #rightPanel {
   height: 90vh; /* this is to get rid of that useless white space on the bottom of the page */
   width:100%;
-  padding-bottom:20px;
+  padding-bottom: 5vh;
   overflow-y:auto !important;
+  padding-right:1vh !important;
 }
 
 /* enforces no borders between input labels & their connected values - sliders, text, etc */
 .input-group-text, .menu_label_value {
   border-color: var(--secondaryColour) !important;
-  
+  background-color: red !important;
+}
+
+.accordionHeader, .accordion-button {
+  color: var(--editorTextColour) !important;
+  background-color: var(--primaryColour) !important;
+  height: 5vh;
+}
+
+.accordionBody, .accordion-flush, .accordion-item {
+  background-color: var(--primaryColour) !important;
+  color: var(--editorTextColour) !important;
+}
+
+#controls_reset {
+  margin-top: 6vh;
 }
 
 .menuBtns {
@@ -349,7 +365,7 @@ html, body {
 
 /* custom for menu labels to sync their widths  */
 .menu_label_subject {
-  width: 13vh;
+  width: 12vh;
   height: 5vh;
 }
 
