@@ -381,6 +381,10 @@ html, body {
   text-align: center;
 }
 
+.badge {
+  pointer-events: none; /* removes ability to click on badges, users click goes thru to the button below */
+}
+
 /* .div, .btn, span#cpm_label, .form-control, .input-group-text, .input-group, .h6, .menu_label_subject, .menu_label_value {
   color: pink !important;
   

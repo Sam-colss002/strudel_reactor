@@ -43,7 +43,7 @@ function StrudelPlayer() {
     const [ themeDropdown, setThemeDropdown] = useState(base.DEFAULT_THEME); // light is default for maximum effect
     const [ codeFontSize, setCodeFontSize ] = useState(base.DEFAULT_FONT_SIZE);
 
-    // on load the player needs to setup the strudel
+    /** on load the player needs to setup the strudel */
     useEffect((e) => {
         if (!hasRun.current) {
             console.log("\nLoading Strudel Player...");
@@ -58,6 +58,7 @@ function StrudelPlayer() {
     }, []);
 
 
+    /** Called upon *every* update. For only very sparing use  */
     useEffect((e) => {
         //console.log("Second useEffect in StrudelPlayer called");
         onHandleFontSize(); // double call wont stop padding from not updating, so this has to be here
@@ -74,13 +75,14 @@ function StrudelPlayer() {
 
     const [ showErrText, setShowErrText ] = useState(false) // for later use
 
+    /** forces the panels to update text according to current settings */
     function onHandleFontSize() {
         let padding = codeFontSize * 2;
         document.getElementById("editor").style.cssText = `a:display: block; background-color: var(--background); font-size: `+codeFontSize+`px; font-family: monospace;`;
         document.getElementById("proc").style.cssText = `resize: none; font-size: `+codeFontSize+`px;`+`padding-left:`+padding+`px;`;
     }
 
-    // resets both LHS panel (editor and processed text)
+    /** resets both LHS panel (editor and processed text) */
     function handleResetCode() {
         console.log("Resetting editor")
         setSongText(stranger_tune);
@@ -88,7 +90,7 @@ function StrudelPlayer() {
         Proc();
     }
 
-    // will reset controls to default; not the loaded settings.
+    /** will reset controls to default; not the loaded settings */
     function onHandleResetControls() {
         console.log("Resetting controls");
         setCodeFontSize(base.DEFAULT_FONT_SIZE);
@@ -123,24 +125,23 @@ function StrudelPlayer() {
 
     const onHandleReverb = (e) => {
         let newReverb = parseFloat(e.target.value);
-        setReverb(newReverb); // DJControls state
-        setGlobalReverb(newReverb); // strudel player volume
+        setReverb(newReverb);
+        setGlobalReverb(newReverb);
     }
 
     const onHandleVolume = (e) => {
         let newVolume = parseFloat(e.target.value);
-
-        setVolume(newVolume); // DJControls state
-        setGlobalVolume(newVolume); // strudel player volume
+        setVolume(newVolume);
+        setGlobalVolume(newVolume);
     };
 
     const onHandleCPM = (e) => {
         let newCPM = parseFloat(e.target.value);
-        setCPM(newCPM); // DJControls state
-        setGlobalCPM(newCPM); // strudel player volume
+        setCPM(newCPM);
+        setGlobalCPM(newCPM);
     };
 
-    // creates JSON-valid data to save as a JSON file
+    /** creates JSON-valid data to save as a JSON file */
     function onHandleExportJSON() {
         console.log("Exporting JSON...")
         let exportJSON = {
@@ -164,7 +165,7 @@ function StrudelPlayer() {
         link.click();
     }
 
-    // takes an uploaded file, verifies it is valid, and outputs as dict to be read into settings
+    /** takes an uploaded file, verifies it is valid, and outputs as dict to be read into settings */
     function onHandleImportJSON(file) {
         console.log("Importing JSON...");
 
@@ -178,7 +179,6 @@ function StrudelPlayer() {
             return;
         }
 
-        // read the file
         const reader = new FileReader();
         reader.onload = () => {
             const readableJSON = JSON.parse(reader.result);
@@ -187,28 +187,30 @@ function StrudelPlayer() {
         reader.onerror = () => {
             alert("Error reading the file. Please try again.", "error");
         };
-        // this *must* be here for reader.onload to work; it sets reader.result
+        // this must be *here* for reader.onload to work; it sets reader.result
         reader.readAsText(file);
     }
 
+    /** Called upon successful file import; checks for required keys in settings config file, and that values are within bounds.  */
     function onHandleLoadSettings(settingsJSON) {
         console.log("onHandleLoadSettings called");
-        console.log("settingsJSON:\n" + settingsJSON);
+        //console.log("settingsJSON:\n" + settingsJSON);
+        const neededKeysList = [ "volume", "cpm", "fontSize", "theme", "checkbox1", "checkbox2", "reverb" ];
+        // d: data; kept short for simplicity sake
+        const data = {
+            volume:settingsJSON["volume"], cpm:settingsJSON["cpm"], fontSize:settingsJSON["fontSize"], 
+            theme:settingsJSON["theme"], checkbox1:settingsJSON["checkbox1"], checkbox2:settingsJSON["checkbox2"], 
+            reverb:settingsJSON["reverb"] };
+        if (data.size !== neededKeysList.size) { console.log("Missmatch in neededKeysList:data comparison!"); }
 
-        let validKeys = validateSettingKeys(settingsJSON);
-        if (!validKeys) {
-            return;
-        }
+        let validKeys = validateSettingKeys(settingsJSON, neededKeysList);
+        if (!validKeys) { return; }
 
-        let withinLimits = validateSettingLimits(settingsJSON);
-        if (!withinLimits) {
-            return;
-        }
+        let withinLimits = validateSettingLimits(settingsJSON, data);
+        if (!withinLimits) { return; }
         
         console.log("Loaded JSON data keys are valid and the corresponding data values are within acceptable limits.");
 
-        // load the settings
-        console.log("onHandleResetControls called");
         try {
             //setCodeFontSize(settingsJSON["fontSize"]);
             onHandleFontSize();
@@ -218,22 +220,22 @@ function StrudelPlayer() {
             setGlobalVolume(settingsJSON["volume"]);
             setGlobalCPM(settingsJSON["cpm"]);
             setReverb(settingsJSON["reverb"]);
+            setGlobalReverb(settingsJSON["cpm"]);
             if (base.DEBUG_MODE) {
                 document.getElementById("checkbox_1").checked = settingsJSON["checkbox1"];
                 document.getElementById("checkbox_2").checked = settingsJSON["checkbox2"];
             }
         } catch (e) {
-            console.log("somehow failed the try-catch to load settings...?");
+            console.log("Somehow failed the try-catch to load settings...?");
         }
     }
 
-    // compare settings to hard coded ranges and what settings exist to see if we can load it
-    function validateSettingKeys(settingsJSON) {
-        let errorAlertText = "Imported file contains insufficient data to load settings.";
-        console.log("validateSettingKeys called");
+    /** Validate that each setting key has a value within limits defined in BaseSettings.jsx */
+    function validateSettingKeys(settingsJSON, neededKeysList) {
+        var alertText = "Imported file contains insufficient data to load settings.";
+        console.log("Verifying that file contains required keys...");
         // what settings we need; ignore other keys
-        const neededKeysList = [ "volume", "cpm", "fontSize", "theme", "checkbox1", "checkbox2", "reverb" ];
-        const missingKeys = [];
+        var missingKeys = [];
 
         var listOfFileKeys = [];
         for (let key in settingsJSON) {
@@ -251,55 +253,69 @@ function StrudelPlayer() {
             }
         }
 
-        let count = 1;
+        var count = 1;
         if (missingKeys.length == 0){
-            console.log("valid; no missing keys");
             return true;
         } else {
             for (let i in missingKeys) {
                 console.log("settingsJSON is missing key : " + missingKeys[i]);
-                errorAlertText += ("\n"+count+" : File is missing key '"+missingKeys[i]+"'");
+                alertText += ("\n"+count+" : File is missing key '"+missingKeys[i]+"'");
                 count++;
             }
-            alert(errorAlertText);
+            alert(alertText);
             return false;
         }
     }
 
-    // compare settings to limits
-    function validateSettingLimits(settingsJSON) {
-        console.log("validateSettingLimits called");
-        let isValid = true; // have to be careful as it is valid by default; *never* set this to true anywhere else
-
-        let errorAlertText = "Imported file contains invalid data.";
-        let count = 0;
-
-        // if setting is valid, isValid is true. We set isValid to false on the inverse
-        if (!( settingsJSON["volume"] < base.VOLUME_MAX )) 
-            {isValid = false; count++; errorAlertText += ("\n"+count+" : volume ("+settingsJSON["volume"]+") > maximum ("+base.VOLUME_MAX+")"); }
-        if (!( settingsJSON["volume"] > base.VOLUME_MIN )) 
-            {isValid = false; count++; errorAlertText += ("\n"+count+" : volume ("+settingsJSON["volume"]+") < minimum ("+base.VOLUME_MIN+")"); }
-        if (!( settingsJSON["fontSize"] < base.FONT_SIZE_SLIDER_MAX )) 
-            {isValid = false; count++; errorAlertText += ("\n"+count+" : fontSize ("+settingsJSON["fontSize"]+") > maximum ("+base.FONT_SIZE_SLIDER_MAX+")"); }
-        if (!( settingsJSON["fontSize"] > base.FONT_SIZE_SLIDER_MIN )) 
-            {isValid = false; count++; errorAlertText += ("\n"+count+" : fontSize ("+settingsJSON["fontSize"]+") < minimum ("+base.FONT_SIZE_SLIDER_MIN+")"); }
-        if (!( ["Debug", "Light", "Dark"].includes(settingsJSON["theme"]) )) 
-            {isValid = false; count++; errorAlertText += ("\n"+count+" : no theme"); }
-        if (!( [true, false].includes(settingsJSON["checkbox1"]) )) 
-            {isValid = false; count++; errorAlertText += ("\n"+count+" : no checkbox1 value"); }
-        if (!( [true, false].includes(settingsJSON["checkbox2"]) )) 
-            {isValid = false; count++; errorAlertText += ("\n"+count+" : no checkbox2 value"); }
-        if (!( settingsJSON["reverb"] < base.REVERB_MAX )) 
-            {isValid = false; count++; errorAlertText += ("\n"+count+" : reverb ("+settingsJSON["reverb"]+") > maximum ("+base.REVERB_MAX+")"); }
-        if (!( settingsJSON["volume"] > base.REVERB_MIN )) 
-            {isValid = false; count++; errorAlertText += ("\n"+count+" : reverb ("+settingsJSON["reverb"]+") < minimum ("+base.REVERB_MIN+")"); }
-
-        if (!isValid) {
-            alert(errorAlertText);
-        }
-
-        return isValid;
+    /** Verify that values for each key (setting) are within bounds */
+    function validateSettingLimits(data) {
+        console.log("Verifying key-values are within bounds...");
+        let alertText = "Imported file contains invalid data.";
+        let i = 0;
+        if (!( data.volume < base.VOLUME_MAX ))            {i++;alertText+=("\n"+i+" : volume ("+data.volume+") > max ("+base.VOLUME_MAX+")"); }
+        if (!( data.volume > base.VOLUME_MIN ))            {i++;alertText+=("\n"+i+" : volume ("+data.volume+") < min ("+base.VOLUME_MIN+")"); }
+        if (!( data.fontSize < base.FONT_SIZE_SLIDER_MAX )){i++;alertText+=("\n"+i+" : fontSize ("+data.fontSize+") > max ("+base.FONT_SIZE_SLIDER_MAX+")"); }
+        if (!( data.fontSize > base.FONT_SIZE_SLIDER_MIN )){i++;alertText+=("\n"+i+" : fontSize ("+data.fontSize+") < min ("+base.FONT_SIZE_SLIDER_MIN+")"); }
+        if (!( base.THEMES_LIST.includes(data.theme) ))    {i++;alertText+=("\n"+i+" : no theme"); }
+        if (!( [true, false].includes(data.checkbox1) ))   {i++;alertText+=("\n"+i+" : no checkbox1 value"); }
+        if (!( [true, false].includes(data.checkbox2) ))   {i++;alertText+=("\n"+i+" : no checkbox2 value"); }
+        if (!( data.reverb < base.REVERB_MAX ))            {i++;alertText+=("\n"+i+" : reverb ("+data.reverb+") > max ("+base.REVERB_MAX+")"); }
+        if (!( data.reverb >= base.REVERB_MIN ))           {i++;alertText+=("\n"+i+" : reverb ("+data.reverb+") < min ("+base.REVERB_MIN+")"); }
+        if (i != 0) { alert(alertText); }
+        return (i != 0 ? false : true);
     }
+
+    // THIS IS COPY AND PASTED FOR REFERENCE SAKE;
+    /* needs to properly register closes
+     * needs to properly alert ONCE
+     * probably gonna be using custom events/button triggers, this is just for testing
+    */
+    const alertPlaceholder = document.getElementById('liveAlertPlaceholder');
+    const appendAlert = (message, type) => {
+        const wrapper = document.createElement('div');
+        wrapper.innerHTML = [
+            `<div class="alert alert-${type} alert-dismissible" role="alert">`,
+            `   <div>${message}</div>`,
+            '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
+            '</div>'
+        ].join('');
+
+        alertPlaceholder.append(wrapper);
+    }
+
+    const alertTrigger = document.getElementById('liveAlertBtn');
+    if (alertTrigger) {
+        alertTrigger.addEventListener('click', () => {
+            appendAlert('Nice, you triggered this alert message!', 'success');
+        })
+    }
+    if (alertTrigger) {
+        alertTrigger.addEventListener('btn-close', () => {
+            console.log("close!!");
+            appendAlert('Nice, you triggered this alert message!', 'success');
+        })
+    }
+
 
     return (
         <div className="bg-header" data-theme={themeDropdown}>
@@ -316,6 +332,8 @@ function StrudelPlayer() {
                 <div className="container-fluid">
                     <div className="row">
                         <div className="col-md-8 main" id="leftPanel">
+                            <div id="liveAlertPlaceholder"></div>
+                            <button type="button" style={{ display: (base.DEBUG_MODE === true) ? 'block' : 'none' }} class="btn btn-primary" id="liveAlertBtn">Show live alert</button>
                             {/* <StrudelPlayer 
                                     songText={songText} 
                                     strudelRef={strudelRef} 
@@ -330,19 +348,17 @@ function StrudelPlayer() {
                                 overflowY: 'auto',
                                 }}>
                                 <div className="editor" id="editor"/>
-                                <div className="output" id="output" />
+                                <div className="output" id="output"/>
                             </div>
                         </div>
 
                         <div className="col container">
-                            {/* the nav menu for right panel -- should control whats in box below on page and be highlighted when active */}
                             <div className="menuNavBar row">
                                 <MenuButtons theme={themeDropdown} defaultValue={activeBtn} onClick={(e) => {
                                     setActiveBtn(e)
                                 }}/>
                             </div>
                             <div className="rightPanel" id="rightPanel">
-                                {/* rather than selectively loading them, menu panel will just show and hide them respectively */}
                                 <div className="HelpPanel" style={{ display: (activeBtn === "helpBtn") ? 'block' : 'none' }}>
                                     < HelpPanel />
                                 </div>
@@ -420,6 +436,7 @@ function StrudelPlayer() {
                                         < ResetControlsButton onHandleResetControls={onHandleResetControls} />    
                                     </div>
                                     
+                                    
                                 </div>
                                 <div className="ConsolePanel bg-foreground" style={{ display: (activeBtn === "consoleBtn") ? 'block' : 'none' }}>
                                     < ConsolePanel />
@@ -432,12 +449,16 @@ function StrudelPlayer() {
                         </div>
                         
                     </div>
+                    
                 </div>
                 {/* this should only appear when errors detected -- relies on a conditionals state to show */}
+                
+                
                 < ErrorTextArea errorText={errorText} setErrorText={setErrorText} />
                 {/* { showErrText ? < ErrorTextArea defaultValue={showErrText} /> : null } */}
                 <canvas hidden id="roll"></canvas>
             </main >
+            
         </div >
     );
 }

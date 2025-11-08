@@ -3,7 +3,13 @@ import base from '../BaseSettings';
 let lastBtnId = base.DEFAULT_MENU;
 let targetBtnId = null;
 
-function MenuButtons({ activeBtn, onClick }) {
+function MenuButtons({ activeBtn, onClick}) {
+    let badge;//=<span className="badge text-bg-danger">4</span>;
+
+    function isDefault(btnName) {
+        return (btnName === base.DEFAULT_MENU) ? "selected" : "unselected";
+    }
+    
     function handleMenuButton(e) {
         targetBtnId = e["target"].id;
         lastBtnId = (lastBtnId == null) ? e["target"].id : lastBtnId;
@@ -17,28 +23,31 @@ function MenuButtons({ activeBtn, onClick }) {
         <>
             <div className="btn-group" role="group" id="menuBtns" aria-label="Menu buttons">
                 { (base.DEBUG_MODE) ?
-                <button className={`btn btn-${(base.DEFAULT_MENU === "helpBtn") ? "selected" : "unselected" } menuBtn`} id="helpBtn" onClick={(e) => {
+                <button className={`btn btn-${isDefault("helpBtn")} menuBtn`} id="helpBtn" onClick={(e) => {
                     handleMenuButton(e);
                     }}>Help</button>
                 : null }
-                <button className={`btn btn-${(base.DEFAULT_MENU === "controlBtn") ? "selected" : "unselected" } menuBtn`} id="controlBtn" onClick={(e) => {
+
+                <button className={`btn btn-${isDefault("controlBtn")} menuBtn`} id="controlBtn" onClick={(e) => {
                     handleMenuButton(e);
                     }}>Controls</button>
-                <button className={`btn btn-${(base.DEFAULT_MENU === "sourceBtn") ? "selected" : "unselected" } menuBtn`} id="sourceBtn" onClick={(e) => {
+                    
+                <button className={`btn btn-${isDefault("sourceBtn")} menuBtn`} id="sourceBtn" onClick={(e) => {
                     handleMenuButton(e);
                     }}>Source</button>
-                { (base.DEBUG_MODE) ?
-                <button className={`btn btn-${(base.DEFAULT_MENU === "consoleBtn") ? "selected" : "unselected" } menuBtn`} id="consoleBtn" onClick={(e) => {
+
+                <button className={`btn btn-${isDefault("consoleBtn")} menuBtn`} id="consoleBtn" onClick={(e) => {
                     handleMenuButton(e);
-                    }}>Console</button>
-                : null }
+                    }}>Console{badge}</button>
+                    
                 { (base.DEBUG_MODE) ?
-                <button className={`btn btn-${(base.DEFAULT_MENU === "unusedBtn") ? "selected" : "unselected" } menuBtn`} id="unusedBtn2" onClick={(e) => {
+                <button className={`btn btn-${isDefault("placeholderBtn")} menuBtn`} id="unusedBtn2" onClick={(e) => {
                     handleMenuButton(e);
                     }}>Placeholder</button>
                 : null }
+
                 { (base.DEBUG_MODE) ?
-                <button disabled hidden className={`btn btn-${(base.DEFAULT_MENU === "unusedBtn") ? "selected" : "unselected" } menuBtn`} id="unusedBtn" onClick={(e) => {
+                <button disabled hidden className={`btn btn-${isDefault("placeholderBtn")} menuBtn`} id="unusedBtn" onClick={(e) => {
                     handleMenuButton(e);
                     }}>Placeholder</button>
                 : null }
