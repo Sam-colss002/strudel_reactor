@@ -18,7 +18,7 @@ let oldProcText = null;
 let processedSettings = [null, null, null]; // used to differentiate play vs proc&play
 
 
-// theres an issue where proc&play will allowc the next stop to proc, too... somehow?
+/**  */
 export const Proc = () => {
     let procText = document.getElementById("proc").value;
     oldProcText = document.getElementById("proc").value;

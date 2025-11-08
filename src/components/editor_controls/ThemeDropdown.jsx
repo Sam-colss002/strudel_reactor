@@ -1,7 +1,7 @@
 import base from '../BaseSettings';
 
 function ThemeDropdown ({ themeDropdown, setThemeDropdown}) {
-    const themesList = [ "Debug", "Light", "Dark" ];
+    const themesList = base.THEMES_LIST;
 
     return (
         <>

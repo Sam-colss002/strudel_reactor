@@ -17,6 +17,7 @@ let o = parseFloat(0.0);
 let p = parseFloat(5.0); // idk what max should be
 let q = parseFloat(0.0);
 let r = parseFloat(0.1);
+let s = ["Debug", "Light", "Dark"];
 
 const base = {
     VOLUME_MIN: a,
@@ -38,7 +39,8 @@ const base = {
     REVERB_MIN: o,
     REVERB_MAX: p,
     DEFAULT_REVERB: q,
-    REVERB_SLIDER_STEP: r
+    REVERB_SLIDER_STEP: r,
+    THEMES_LIST: s
 };
 
 export default base;
