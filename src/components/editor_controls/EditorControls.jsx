@@ -13,7 +13,7 @@ export function EditorControls({ codeFontSize, setCodeFontSize, themeDropdown, s
                 <br/>
                 {/* <div className="mb-4 h6 bg-foreground">DJ Controls</div> */}
 
-                <div className="row mb-2">
+                <div className="row mb-0">
                     <div className="col bg-foreground">
                         <ThemDropdown themeDropdown={themeDropdown} setThemeDropdown={setThemeDropdown} onHandleGeneric={onHandleGeneric} onHandleTheme={onHandleTheme}/>
                     </div>
@@ -22,7 +22,7 @@ export function EditorControls({ codeFontSize, setCodeFontSize, themeDropdown, s
                     </div>
                 </div>
 
-                <div className="row mb-2 bg-foreground">
+                <div className="row mb-0 bg-foreground">
                         {/* TODO: this does nothing! */}
                     <div className="col bg-foreground" style={{ display: (base.DEBUG_MODE === true) ? 'block' : 'none' }} >
                         <input className="form-check-input" type="checkBox" name="aa" defaultChecked={base.CHECKBOX_1} id="checkbox_1" onChange={onHandleGeneric} /> {/*onChange={ProcAndPlay} */}

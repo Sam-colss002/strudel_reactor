@@ -39,6 +39,8 @@ function StrudelPlayer() {
     // dj_controls
     const [ reverb, setReverb ] = useState(base.DEFAULT_REVERB);
 
+    const [ visibleEditor, setVisibleEditor ] = useState(1);
+
     // editor controls
     const [ themeDropdown, setThemeDropdown] = useState(base.DEFAULT_THEME); // light is default for maximum effect
     const [ codeFontSize, setCodeFontSize ] = useState(base.DEFAULT_FONT_SIZE);
@@ -56,6 +58,7 @@ function StrudelPlayer() {
             setGlobalReverb(reverb);
         }
     }, []);
+
 
 
     /** Called upon *every* update. For only very sparing use  */
@@ -326,32 +329,34 @@ function StrudelPlayer() {
                         <PlayButtons onPlay={handlePlay} onStop={handleStop} />
                         <ProcButtons onProc={handleProc} onProcPlay={handleProcPlay} onReset={handleReset} />
                     </div>
+                    
                 </div>
             </h2>
             <main>
                 <div className="container-fluid">
+                    
                     <div className="row">
                         <div className="col-md-8 main" id="leftPanel">
                             <div id="liveAlertPlaceholder"></div>
-                            <button type="button" style={{ display: (base.DEBUG_MODE === true) ? 'block' : 'none' }} class="btn btn-primary" id="liveAlertBtn">Show live alert</button>
+                            
                             {/* <StrudelPlayer 
                                     songText={songText} 
                                     strudelRef={strudelRef} 
                             /> */}
-                            <div className="unprocessedTextPanel" id="editorPanel" style={{ maxHeight: '50vh', overflowY: 'auto'}}>
+                            <div className="unprocessedTextPanel" id="codePanel" 
+                            style={{ display: (visibleEditor === 0) ? 'block' : 'none'}}>
                                 {/* e knows where it is because it knows where it isn't.
                                 ... not really, i'm assuming e just has a reference to self or smth */}
                                 <PreprocessTextArea songText={songText} setSongText={setSongText} />
                             </div>
-                            <div className="processedCodePanel" id="codePanel" style={{ 
-                                maxHeight: '35vh',
-                                overflowY: 'auto',
-                                }}>
+                            <div className="processedCodePanel" id="codePanel" 
+                            style={{ display: (visibleEditor === 1 ) ? 'block' : 'none' }}>
                                 <div className="editor" id="editor"/>
                                 <div className="output" id="output"/>
                             </div>
+                            <button className="btn ioBtnRow" onClick={(e) => {
+                            setVisibleEditor((visibleEditor === 1) ? 0 : 1); }}>editor panel</button>
                         </div>
-
                         <div className="col container">
                             <div className="menuNavBar row">
                                 <MenuButtons theme={themeDropdown} defaultValue={activeBtn} onClick={(e) => {

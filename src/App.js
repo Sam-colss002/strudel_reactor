@@ -8,8 +8,6 @@ import StrudelPlayer from './components/StrudelPlayer';
 let defaultTune = stranger_tune;
 
 function App() {
-    // this in App allows me to have one constant ref for both StrudelPlayer and StrudelSetup 
-    //const strudelRef = useRef();
     return (
         <div>
             <StrudelPlayer 
