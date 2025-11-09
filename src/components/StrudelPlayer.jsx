@@ -321,35 +321,30 @@ function StrudelPlayer() {
 
 
     return (
-        <div className="bg-header" data-theme={themeDropdown}>
-            <h2 className="container-fluid bg-header">
-                <div className="row bg-header">
-                    <b className="col bg-header" style={{ maxWidth:'85%' }}>Strudel Demo</b>
-                    <div className="col-auto bg-header">
-                        <PlayButtons onPlay={handlePlay} onStop={handleStop} />
-                        <ProcButtons onProc={handleProc} onProcPlay={handleProcPlay} onReset={handleReset} />
-                    </div>
-                    
+        <main data-theme={themeDropdown}>
+            {/* header bar; has app title + play buttons */}
+            <div className="bg-header-bar">
+                <div className="h2 b">Strudel Demo</div>
+                <div className="playButtons">
+                    <PlayButtons onPlay={handlePlay} onStop={handleStop} />
+                    <ProcButtons onProc={handleProc} onProcPlay={handleProcPlay} onReset={handleReset} />
                 </div>
-            </h2>
-            <main>
-                <div className="container-fluid">
+            </div>
+            {/* all content below header bar */}
+            <div className="content-body"> 
+                <div className="body-left">
                     
-                    <div className="row">
-                        <div className="col-md-8 main" id="leftPanel">
-                            <div id="liveAlertPlaceholder"></div>
-                            
-                            {/* <StrudelPlayer 
-                                    songText={songText} 
-                                    strudelRef={strudelRef} 
-                            /> */}
+                    <div className="menuNavBar row">
+                        <div className="menuBtns btn-group col" role="group" id="editorViewBtn" aria-label="Menu buttons">
+                            <button className="btn btn-unselected menuBtn" onClick={(e) => {
+                                setVisibleEditor((visibleEditor === 1) ? 0 : 1); }}>{(visibleEditor == 0) ? "Preprocessed Code" : "Processed Code"}
+                            </button>
+                        </div>
+                        
+                    </div>
 
-                            <div className="col container">
-                                <div className="menuNavBar row">
-                                    <button className="btn ioBtnRow" onClick={(e) => {
-                                setVisibleEditor((visibleEditor === 1) ? 0 : 1); }}>{(visibleEditor == 0) ? "Preprocessed Code" : "Processed Code"}</button>
-                                </div>
-                            </div>
+                    <div className="" id="leftPanel">
+                            <div id="liveAlertPlaceholder"></div>
 
                             <div className="unprocessedTextPanel" id="codePanel" 
                             style={{ display: (visibleEditor === 0) ? 'block' : 'none'}}>
@@ -367,13 +362,22 @@ function StrudelPlayer() {
 
                             
                         </div>
+                </div>
 
-                        <div className="col container">
-                            <div className="menuNavBar row">
+                <div className="body-right">
+                    
+                    <div className="menuNavBar row">
+                        <MenuButtons theme={themeDropdown} defaultValue={activeBtn} onClick={(e) => {
+                            setActiveBtn(e)
+                        }}/>
+                    </div>
+
+                    <div className="">
+                            {/* <div className="menuNavBar row">
                                 <MenuButtons theme={themeDropdown} defaultValue={activeBtn} onClick={(e) => {
                                     setActiveBtn(e)
                                 }}/>
-                            </div>
+                            </div> */}
                             <div className="rightPanel" id="rightPanel">
                                 <div className="HelpPanel" style={{ display: (activeBtn === "helpBtn") ? 'block' : 'none' }}>
                                     < HelpPanel />
@@ -463,6 +467,16 @@ function StrudelPlayer() {
                             </div>
                             
                         </div>
+
+                </div>
+            </div>
+            <div>
+                <div className="container-fluid">
+                    
+                    <div className="row">
+                        
+
+                        
                         
                     </div>
                     
@@ -473,9 +487,9 @@ function StrudelPlayer() {
                 < ErrorTextArea errorText={errorText} setErrorText={setErrorText} />
                 {/* { showErrText ? < ErrorTextArea defaultValue={showErrText} /> : null } */}
                 <canvas hidden id="roll"></canvas>
-            </main >
+            </div >
             
-        </div >
+        </main >
     );
 }
 
