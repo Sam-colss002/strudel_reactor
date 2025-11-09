@@ -11,6 +11,7 @@
   --rightPanelTextColour: black !important;
   --sliderColour: blue;
   --checkboxBackgroundColour: var(--secondaryColour);
+  --gutterColour: #ccc;
 
   /* only change these below 2 to change panel menu buttons text colour */
   --menuPanelPrim: white; 
@@ -31,6 +32,7 @@
   --rightPanelTextColour: white;
   --sliderColour: #00000099;
   --checkboxBackgroundColour: var(--sliderColour);
+  --gutterColour: #ccc;
 
   --menuPanelPrim: black;
   --menuPanelSec: white;
@@ -50,6 +52,7 @@
   --rightPanelTextColour: white;
   --sliderColour: #dad8e979;
   --checkboxBackgroundColour: var(--secondaryColour);
+  --gutterColour: #8a919966;
 
   --menuPanelPrim: black;
   --menuPanelSec: white;
@@ -64,6 +67,8 @@
   border-color: var(--menuPanelPrim) !important; /* if we see yellow, somethings wrong */
   max-height: 100% !important; /* Ensure html and body take up full viewport height */
   min-height: 0% !important;
+  caret-color: auto;
+  user-select: auto;
   
 }
 
@@ -72,11 +77,14 @@ html, body {
   height: 100% !important; /* Ensure html and body take up full viewport height */
   min-height: 100% !important;
   width: 100% !important;
-  padding-bottom:0.01%;
+  padding-bottom:0vh;
   overflow-x:hidden !important;
   overflow-y:hidden !important;
   
+}::selection {
+  background: auto;
 }
+
 /* unselected menu buttons */
 .btn-unselected {
   color: var(--quaternaryColour) !important;
@@ -98,7 +106,7 @@ html, body {
 
 
 /* right panel foreground, essentially */
-.bg-foreground, .btn-group, .menu-panel, .row, .input-group {
+.bg-foreground, .btn-group, .menu-panel, .row, .input-group, #rightPanel {
   background-color: var(--primaryColour) !important;
   scrollbar-color: var(--secondaryColour) var(--primaryColour) !important; /* right panel only */
 }
@@ -235,12 +243,12 @@ html, body {
 .form-control.editor, #proc {
   border-color: var(--tertiaryColour) !important; /* hides weird border around lhs text area */
   color: var(--editorTextColour) !important;
-  height: 50vh;
+  height: 45.375vh;
   overflow-y:scroll;
-  
 }
 
-.processedCodePanel {
+
+.processedCodePanel, .unprocessedTextPanel {
   margin-top: 1vh;
   margin-bottom: 1vh;
 }
@@ -265,8 +273,8 @@ html, body {
 .rightPanel #rightPanel {
   height: 90vh; /* this is to get rid of that useless white space on the bottom of the page */
   width:100%;
-  padding-bottom: 5vh;
-  overflow-y:auto !important;
+  padding-bottom: 5vh !important;
+  overflow-y:scroll !important;
   padding-right:1vh !important;
 }
 
@@ -279,7 +287,7 @@ html, body {
 .accordionHeader, .accordion-button {
   color: var(--editorTextColour) !important;
   background-color: var(--primaryColour) !important;
-  height: 5vh;
+  height: 2vh;
 }
 
 .accordionBody, .accordion-flush, .accordion-item {
@@ -288,7 +296,7 @@ html, body {
 }
 
 #controls_reset {
-  margin-top: 6vh;
+  margin-top: 0vh;
 }
 
 .menuBtns {
@@ -349,8 +357,13 @@ html, body {
   
 }
 
+.ͼ1 .cm-scroller, .cm_scroller, .cm-gutter {
+  line-height: 1.5 !important;
+}
+
 .proc {
   resize: none;
+  
 }
 
 .menuNavBar {
@@ -374,7 +387,6 @@ html, body {
   background-color: var(--secondaryColour); 
   font-family: monospace;
   overflow:auto !important;
-
 }
 
 .centerAligned {
@@ -383,6 +395,17 @@ html, body {
 
 .badge {
   pointer-events: none; /* removes ability to click on badges, users click goes thru to the button below */
+}
+
+#editor, #proc, .processedCodePanel {
+  caret-shape: underscore !important;
+  caret-color: red !important;
+}
+
+.cm-line::selection, .cm-content::selection, .textarea::selection {
+  color: mediumblue !important;/* Black text */
+  background-color: red !important;
+  background: red !important;
 }
 
 /* .div, .btn, span#cpm_label, .form-control, .input-group-text, .input-group, .h6, .menu_label_subject, .menu_label_value {

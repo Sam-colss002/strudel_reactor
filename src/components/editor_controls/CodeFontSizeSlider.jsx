@@ -2,7 +2,7 @@ import base from '../BaseSettings';
 
 function CodeFontSizeSlider({ codeFontSize, setCodeFontSize, onHandleGeneric, onHandleFontSize }) {
     return (
-        <div className="input-group mb-4">
+        <div className="input-group mb-1">
             <span className="input-group-text menu_label_subject" id="font_label">Font Size</span>
             <input type="range" className="col-lg menu_label_value slider" 
             min={base.FONT_SIZE_SLIDER_MIN} max={base.FONT_SIZE_SLIDER_MAX} value={codeFontSize} 
