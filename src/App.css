@@ -269,6 +269,23 @@ html, body {
   background-color: var(--tertiaryColour) !important;
 }
 
+.menuJustTextBox {
+  padding-left:3vh;
+  padding-right:3vh;
+}
+
+.menuJustTextBox p, li, ol, h6, h5, small, b {
+  background-color: var(--primaryColour) !important;
+}
+
+.menuJustTextBox small, h5 {
+  display:inline-block !important;
+}
+
+.menuJustTextBox h6 {
+  padding-top: 4vh;
+}
+
 
 .dontShow:hover {
   background-color: var(--primaryColour) !important;
@@ -358,11 +375,6 @@ html, body {
 
 .menuBtns {
   width:10px !important;
-}
-
-.menuJustTextBox {
-  padding-left:3vh;
-  padding-right:3vh;
 }
 
 .input-group-text {

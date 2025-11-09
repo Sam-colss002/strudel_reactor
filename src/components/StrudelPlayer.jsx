@@ -11,8 +11,6 @@ import ProcButtons from './ProcButtons';
 import PreprocessTextArea from './PreprocessTextArea';
 import ErrorTextArea from './ErrorTextArea';
 import HelpPanel from './menu_controls/HelpPanel';
-//import ControlPanel from './panels/ControlPanel';
-import SourcePanel from './menu_controls/SourcePanel';
 import ConsolePanel from './menu_controls/ConsolePanel';
 import { setGlobalCPM, setGlobalReverb, StrudelSetup } from './StrudelSetup';
 import { handlePlay, handleStop, handleProc, handleProcPlay, handleReset, Proc, setGlobalVolume} from './StrudelSetup';
@@ -460,9 +458,6 @@ function StrudelPlayer() {
                                 </div>
                                 <div className="ConsolePanel bg-foreground" style={{ display: (activeBtn === "consoleBtn") ? 'block' : 'none' }}>
                                     < ConsolePanel />
-                                </div>
-                                <div className="SourcePanel bg-foreground" style={{ display: (activeBtn === "sourceBtn") ? 'block' : 'none' }}>
-                                    < SourcePanel />
                                 </div>
                             </div>
                             
