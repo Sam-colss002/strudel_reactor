@@ -22,11 +22,9 @@ function MenuButtons({ activeBtn, onClick}) {
     return (
         <>
             <div className="btn-group" role="group" id="menuBtns" aria-label="Menu buttons">
-                { (base.DEBUG_MODE) ?
                 <button className={`btn btn-${isDefault("helpBtn")} menuBtn`} id="helpBtn" onClick={(e) => {
                     handleMenuButton(e);
-                    }}>Help</button>
-                : null }
+                    }}>Welcome</button>
 
                 <button className={`btn btn-${isDefault("controlBtn")} menuBtn`} id="controlBtn" onClick={(e) => {
                     handleMenuButton(e);

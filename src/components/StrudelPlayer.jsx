@@ -343,20 +343,31 @@ function StrudelPlayer() {
                                     songText={songText} 
                                     strudelRef={strudelRef} 
                             /> */}
+
+                            <div className="col container">
+                                <div className="menuNavBar row">
+                                    <button className="btn ioBtnRow" onClick={(e) => {
+                                setVisibleEditor((visibleEditor === 1) ? 0 : 1); }}>{(visibleEditor == 0) ? "Preprocessed Code" : "Processed Code"}</button>
+                                </div>
+                            </div>
+
                             <div className="unprocessedTextPanel" id="codePanel" 
                             style={{ display: (visibleEditor === 0) ? 'block' : 'none'}}>
-                                {/* e knows where it is because it knows where it isn't.
-                                ... not really, i'm assuming e just has a reference to self or smth */}
+                                {/* TODO: should i keep both? both allows user to play last processed song whilst still editing it
+                                it does also mention preprocessing code in the  specs; I think i'll just leave it as is for now
+                                functionality with both is kinda wack, edits in proctext box are ignored
+                                */}
                                 <PreprocessTextArea songText={songText} setSongText={setSongText} />
                             </div>
-                            <div className="processedCodePanel" id="codePanel" 
+                            <div className="processedCodePanel" id="codePanel"
                             style={{ display: (visibleEditor === 1 ) ? 'block' : 'none' }}>
                                 <div className="editor" id="editor"/>
-                                <div className="output" id="output"/>
+                                
                             </div>
-                            <button className="btn ioBtnRow" onClick={(e) => {
-                            setVisibleEditor((visibleEditor === 1) ? 0 : 1); }}>editor panel</button>
+
+                            
                         </div>
+
                         <div className="col container">
                             <div className="menuNavBar row">
                                 <MenuButtons theme={themeDropdown} defaultValue={activeBtn} onClick={(e) => {
