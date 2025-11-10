@@ -213,6 +213,89 @@ html, body {
   background-color: var(--tertiaryColour) !important;
 }
 
+.bg-header-bar {
+  color: var(--editorTextColour) !important;
+  background-color: var(--tertiaryColour) !important;
+  column-count: 2;
+  width: all;
+  padding-left: 2vh;
+  padding-right: 2vh;
+}
+
+.h2.b {
+  font-weight: bold;
+}
+
+.bg-header-bar div.h2.b {
+  text-align: left;
+  color: var(--editorTextColour) !important;
+  background-color: var(--tertiaryColour) !important;
+}
+
+.bg-header-bar div.playButtons {
+  text-align: right;
+  color: var(--editorTextColour) !important;
+  background-color: var(--tertiaryColour) !important;
+}
+
+.content-body {
+  color: var(--editorTextColour) !important;
+  background-color: var(--tertiaryColour) !important;
+  column-count: 1;
+  width:auto;
+  padding-left: 1vh;
+  padding-right: 1vh;
+}
+
+.content-body .body-left {
+  display:inline-block;
+  color: inherit !important;
+  background-color: var(--tertiaryColour) !important;
+  width: calc(100% * 2 / 3) !important;
+  padding-right: 1vh;
+  vertical-align: top !important;
+}
+
+.graphPanel {
+  display:inline-block;
+  color: inherit !important;
+  background-color: red !important;
+  width: calc(100%) !important;
+  padding-right: 1vh;
+  vertical-align: top !important;
+}
+
+.content-body .body-right {
+  display:inline-block;
+  color: inherit !important;
+  background-color: var(--tertiaryColour) !important;
+  width: calc(100% * 1 / 3) !important;
+  padding-left: 1vh;
+  vertical-align: top !important;
+}
+
+.menuBtns.btn-group#editorViewBtn {
+  background-color: var(--tertiaryColour) !important;
+}
+
+.menuJustTextBox {
+  padding-left:3vh;
+  padding-right:3vh;
+}
+
+.menuJustTextBox p, li, ol, h6, h5, small, b {
+  background-color: var(--primaryColour) !important;
+}
+
+.menuJustTextBox small, h5 {
+  display:inline-block !important;
+}
+
+.menuJustTextBox h6 {
+  padding-top: 4vh;
+}
+
+
 .dontShow:hover {
   background-color: var(--primaryColour) !important;
 }
@@ -248,10 +331,10 @@ html, body {
 }
 
 
-.processedCodePanel, .unprocessedTextPanel {
+/* .processedCodePanel, .unprocessedTextPanel {
   margin-top: 1vh;
   margin-bottom: 1vh;
-}
+} */
 
 #menuBtns {
   background-color: var(--tertiaryColour) !important;
@@ -301,11 +384,6 @@ html, body {
 
 .menuBtns {
   width:10px !important;
-}
-
-.menuJustTextBox {
-  padding-left:3vh;
-  padding-right:3vh;
 }
 
 .input-group-text {

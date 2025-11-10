@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useContext, useMemo } from "react";
 import { stranger_tune } from '../tunes';
 import console_monkey_patch from '../console-monkey-patch';
 
@@ -11,11 +11,9 @@ import ProcButtons from './ProcButtons';
 import PreprocessTextArea from './PreprocessTextArea';
 import ErrorTextArea from './ErrorTextArea';
 import HelpPanel from './menu_controls/HelpPanel';
-//import ControlPanel from './panels/ControlPanel';
-import SourcePanel from './menu_controls/SourcePanel';
 import ConsolePanel from './menu_controls/ConsolePanel';
-import { setGlobalCPM, setGlobalReverb, StrudelSetup } from './StrudelSetup';
-import { handlePlay, handleStop, handleProc, handleProcPlay, handleReset, Proc, setGlobalVolume} from './StrudelSetup';
+import AudioGraph from './AudioGraph';
+import { StrudelSetupClass } from './StrudelSetup';
 import base from './BaseSettings';
 import { stringifyValues } from "@strudel/core";
 import ResetControlsButton from "./editor_controls/ResetControlsButton";
@@ -24,38 +22,61 @@ import Accordion from 'react-bootstrap/Accordion';
 import { useAccordionButton } from 'react-bootstrap/AccordionButton';
 import Card from 'react-bootstrap/Card';
 
+import { StrudelContext } from "../App";
 let defaultTune = stranger_tune;
+let setupMethods;
 
-function StrudelPlayer() {
+function StrudelPlayer(context) {
     const hasRun = useRef(false);
     const [ songText, setSongText ] = useState("");
     const [ activeBtn, setActiveBtn ] = useState(base.DEFAULT_MENU);
     const [ errorText, setErrorText ] = useState("");
 
     // audio_controls
-    const [ volume, setVolume ] = useState(base.DEFAULT_VOLUME);
-    const [ cpm, setCPM ] = useState(base.DEFAULT_CPM);
+    // const [ volume, setVolume ] = useState(base.DEFAULT_VOLUME);
+    // const [ cpm, setCPM ] = useState(base.DEFAULT_CPM);
 
-    // dj_controls
-    const [ reverb, setReverb ] = useState(base.DEFAULT_REVERB);
+    // // dj_controls
+    // const [ reverb, setReverb ] = useState(base.DEFAULT_REVERB);
 
-    const [ visibleEditor, setVisibleEditor ] = useState(1);
+    const [ visibleEditor, setVisibleEditor ] = useState(0);
 
     // editor controls
-    const [ themeDropdown, setThemeDropdown] = useState(base.DEFAULT_THEME); // light is default for maximum effect
-    const [ codeFontSize, setCodeFontSize ] = useState(base.DEFAULT_FONT_SIZE);
+    // const [ themeDropdown, setThemeDropdown] = useState(base.DEFAULT_THEME); // light is default for maximum effect
+    // const [ codeFontSize, setCodeFontSize ] = useState(base.DEFAULT_FONT_SIZE);
+
+    const { volume, setVolume, cpm, setCPM, 
+        themeDropdown, setThemeDropdown, codeFontSize, 
+        setCodeFontSize, reverb, setReverb } = useContext(StrudelContext);
+
+    let strudelRef = new StrudelSetupClass(stranger_tune, setSongText, volume, cpm, reverb );
+
+    const getSettingValues = ReturnSettingValues();
+
+    function ReturnSettingValues() {
+        return {
+            volume,
+            cpm,
+            reverb
+        }
+    } 
+
 
     /** on load the player needs to setup the strudel */
     useEffect((e) => {
         if (!hasRun.current) {
+            
             console.log("\nLoading Strudel Player...");
             document.getElementById("consolePanelText").innerText = "";
             console.log("hasRun is false; setting up Strudel");
             hasRun.current = true;
-            StrudelSetup(stranger_tune, setSongText);
-            setGlobalVolume(volume);
-            setGlobalCPM(cpm);
-            setGlobalReverb(reverb);
+            strudelRef.StrudelSetup(stranger_tune, setSongText, volume, cpm, reverb );
+            strudelRef.setGlobalVolume(volume);
+            strudelRef.setGlobalCPM(cpm);
+            strudelRef.setGlobalReverb(reverb);
+            /* instead of these, it assign this.(...) to the params in StrudelSetup
+             * and use processedSettings array to prevent updating b4 process button clicked
+             */
         }
     }, []);
 
@@ -65,6 +86,7 @@ function StrudelPlayer() {
     useEffect((e) => {
         //console.log("Second useEffect in StrudelPlayer called");
         onHandleFontSize(); // double call wont stop padding from not updating, so this has to be here
+        console.log("strudelRef.testVolume : " + strudelRef.testVolume());
 
         // add listener to print logs into console panel
         //document.getElementById("consolePanelText").addEventListener("useState", onHandleConsolePanel(e));
@@ -90,7 +112,7 @@ function StrudelPlayer() {
         console.log("Resetting editor")
         setSongText(stranger_tune);
         document.getElementById("proc").value=stranger_tune;
-        Proc();
+        strudelRef.Proc();
     }
 
     /** will reset controls to default; not the loaded settings */
@@ -101,9 +123,9 @@ function StrudelPlayer() {
         setVolume(base.DEFAULT_VOLUME);
         setCPM(base.DEFAULT_CPM);
         setThemeDropdown(base.DEFAULT_THEME);
-        setGlobalVolume(base.DEFAULT_VOLUME);
-        setGlobalCPM(base.DEFAULT_CPM);
-        setReverb(base.DEFAULT_REVERB);
+        strudelRef.setGlobalVolume(base.DEFAULT_VOLUME);
+        strudelRef.setGlobalCPM(base.DEFAULT_CPM);
+        strudelRef.setReverb(base.DEFAULT_REVERB);
         document.getElementById("checkbox_1").checked = document.getElementById("checkbox_1").defaultChecked;
         document.getElementById("checkbox_2").checked = document.getElementById("checkbox_2").defaultChecked;
     }
@@ -129,19 +151,19 @@ function StrudelPlayer() {
     const onHandleReverb = (e) => {
         let newReverb = parseFloat(e.target.value);
         setReverb(newReverb);
-        setGlobalReverb(newReverb);
+        strudelRef.setGlobalReverb(newReverb);
     }
 
     const onHandleVolume = (e) => {
         let newVolume = parseFloat(e.target.value);
         setVolume(newVolume);
-        setGlobalVolume(newVolume);
+        strudelRef.setGlobalVolume(newVolume);
     };
 
     const onHandleCPM = (e) => {
         let newCPM = parseFloat(e.target.value);
         setCPM(newCPM);
-        setGlobalCPM(newCPM);
+        strudelRef.setGlobalCPM(newCPM);
     };
 
     /** creates JSON-valid data to save as a JSON file */
@@ -220,10 +242,10 @@ function StrudelPlayer() {
             setVolume(settingsJSON["volume"]);
             setCPM(settingsJSON["cpm"]);
             setThemeDropdown(settingsJSON["theme"]);
-            setGlobalVolume(settingsJSON["volume"]);
-            setGlobalCPM(settingsJSON["cpm"]);
+            strudelRef.setGlobalVolume(settingsJSON["volume"]);
+            strudelRef.setGlobalCPM(settingsJSON["cpm"]);
             setReverb(settingsJSON["reverb"]);
-            setGlobalReverb(settingsJSON["cpm"]);
+            strudelRef.setGlobalReverb(settingsJSON["cpm"]);
             if (base.DEBUG_MODE) {
                 document.getElementById("checkbox_1").checked = settingsJSON["checkbox1"];
                 document.getElementById("checkbox_2").checked = settingsJSON["checkbox2"];
@@ -293,63 +315,57 @@ function StrudelPlayer() {
      * needs to properly alert ONCE
      * probably gonna be using custom events/button triggers, this is just for testing
     */
-    const alertPlaceholder = document.getElementById('liveAlertPlaceholder');
-    const appendAlert = (message, type) => {
-        const wrapper = document.createElement('div');
-        wrapper.innerHTML = [
-            `<div class="alert alert-${type} alert-dismissible" role="alert">`,
-            `   <div>${message}</div>`,
-            '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
-            '</div>'
-        ].join('');
+    // const alertPlaceholder = document.getElementById('liveAlertPlaceholder');
+    // const appendAlert = (message, type) => {
+    //     const wrapper = document.createElement('div');
+    //     wrapper.innerHTML = [
+    //         `<div class="alert alert-${type} alert-dismissible" role="alert">`,
+    //         `   <div>${message}</div>`,
+    //         '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
+    //         '</div>'
+    //     ].join('');
 
-        alertPlaceholder.append(wrapper);
-    }
+    //     alertPlaceholder.append(wrapper);
+    // }
 
-    const alertTrigger = document.getElementById('liveAlertBtn');
-    if (alertTrigger) {
-        alertTrigger.addEventListener('click', () => {
-            appendAlert('Nice, you triggered this alert message!', 'success');
-        })
-    }
-    if (alertTrigger) {
-        alertTrigger.addEventListener('btn-close', () => {
-            console.log("close!!");
-            appendAlert('Nice, you triggered this alert message!', 'success');
-        })
-    }
+    // const alertTrigger = document.getElementById('liveAlertBtn');
+    // if (alertTrigger) {
+    //     alertTrigger.addEventListener('click', () => {
+    //         appendAlert('Nice, you triggered this alert message!', 'success');
+    //     })
+    // }
+    // if (alertTrigger) {
+    //     alertTrigger.addEventListener('btn-close', () => {
+    //         console.log("close!!");
+    //         appendAlert('Nice, you triggered this alert message!', 'success');
+    //     })
+    // }
 
 
     return (
-        <div className="bg-header" data-theme={themeDropdown}>
-            <h2 className="container-fluid bg-header">
-                <div className="row bg-header">
-                    <b className="col bg-header" style={{ maxWidth:'85%' }}>Strudel Demo</b>
-                    <div className="col-auto bg-header">
-                        <PlayButtons onPlay={handlePlay} onStop={handleStop} />
-                        <ProcButtons onProc={handleProc} onProcPlay={handleProcPlay} onReset={handleReset} />
-                    </div>
-                    
+        <main data-theme={themeDropdown}>
+            {/* header bar; has app title + play buttons */}
+            <div className="bg-header-bar">
+                <div className="h2 b">Strudel Demo</div>
+                <div className="playButtons">
+                    <PlayButtons onPlay={strudelRef.handlePlay} onStop={strudelRef.handleStop} />
+                    <ProcButtons onProc={strudelRef.handleProc} onProcPlay={strudelRef.handleProcPlay} onReset={strudelRef.handleReset} />
                 </div>
-            </h2>
-            <main>
-                <div className="container-fluid">
+            </div>
+            {/* all content below header bar */}
+            <div className="content-body"> 
+                <div className="body-left">
                     
-                    <div className="row">
-                        <div className="col-md-8 main" id="leftPanel">
-                            <div id="liveAlertPlaceholder"></div>
-                            
-                            {/* <StrudelPlayer 
-                                    songText={songText} 
-                                    strudelRef={strudelRef} 
-                            /> */}
+                    <div className="menuNavBar row">
+                        <div className="menuBtns btn-group col" role="group" id="editorViewBtn" aria-label="Menu buttons">
+                            <button className="btn btn-unselected menuBtn" onClick={(e) => {
+                                setVisibleEditor((visibleEditor === 1) ? 0 : 1); }}>{(visibleEditor == 0) ? "Preprocessed Code" : "Processed Code"}
+                            </button>
+                        </div>
+                    </div>
 
-                            <div className="col container">
-                                <div className="menuNavBar row">
-                                    <button className="btn ioBtnRow" onClick={(e) => {
-                                setVisibleEditor((visibleEditor === 1) ? 0 : 1); }}>{(visibleEditor == 0) ? "Preprocessed Code" : "Processed Code"}</button>
-                                </div>
-                            </div>
+                    <div className="" id="leftPanel">
+                            <div id="liveAlertPlaceholder"></div>
 
                             <div className="unprocessedTextPanel" id="codePanel" 
                             style={{ display: (visibleEditor === 0) ? 'block' : 'none'}}>
@@ -364,16 +380,21 @@ function StrudelPlayer() {
                                 <div className="editor" id="editor"/>
                                 
                             </div>
-
-                            
                         </div>
+                    
+                    <div className="" id="leftPanel">
+                        <AudioGraph />
+                    </div>
+                </div>
 
-                        <div className="col container">
-                            <div className="menuNavBar row">
-                                <MenuButtons theme={themeDropdown} defaultValue={activeBtn} onClick={(e) => {
-                                    setActiveBtn(e)
-                                }}/>
-                            </div>
+                <div className="body-right">
+                    <div className="menuNavBar row">
+                        <MenuButtons theme={themeDropdown} defaultValue={activeBtn} onClick={(e) => {
+                            setActiveBtn(e)
+                        }}/>
+                    </div>
+
+                    <div className="">
                             <div className="rightPanel" id="rightPanel">
                                 <div className="HelpPanel" style={{ display: (activeBtn === "helpBtn") ? 'block' : 'none' }}>
                                     < HelpPanel />
@@ -457,12 +478,17 @@ function StrudelPlayer() {
                                 <div className="ConsolePanel bg-foreground" style={{ display: (activeBtn === "consoleBtn") ? 'block' : 'none' }}>
                                     < ConsolePanel />
                                 </div>
-                                <div className="SourcePanel bg-foreground" style={{ display: (activeBtn === "sourceBtn") ? 'block' : 'none' }}>
-                                    < SourcePanel />
-                                </div>
                             </div>
-                            
-                        </div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div className="container-fluid">
+                    
+                    <div className="row">
+                        
+
+                        
                         
                     </div>
                     
@@ -473,9 +499,9 @@ function StrudelPlayer() {
                 < ErrorTextArea errorText={errorText} setErrorText={setErrorText} />
                 {/* { showErrText ? < ErrorTextArea defaultValue={showErrText} /> : null } */}
                 <canvas hidden id="roll"></canvas>
-            </main >
+            </div >
             
-        </div >
+        </main >
     );
 }
 
