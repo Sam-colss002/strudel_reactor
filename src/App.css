@@ -106,7 +106,7 @@ html, body {
 
 
 /* right panel foreground, essentially */
-.bg-foreground, .btn-group, .menu-panel, .row, .input-group, #rightPanel {
+.bg-foreground, .btn-group, .menu-panel, .row, .input-group, #rightPanel, #leftBottomPanel {
   background-color: var(--primaryColour) !important;
   scrollbar-color: var(--secondaryColour) var(--primaryColour) !important; /* right panel only */
 }
@@ -256,12 +256,20 @@ html, body {
   vertical-align: top !important;
 }
 
-.graphPanel {
+.content-body .body-left #leftBottomPanel {
   display:inline-block;
   color: inherit !important;
   background-color: red !important;
   width: calc(100%) !important;
   padding-right: 1vh;
+  vertical-align: bottom !important;
+}
+
+.canvas {
+  display:inline-block;
+  color: inherit !important;
+  background-color: red !important;
+  width: calc(100%) !important;
   vertical-align: top !important;
 }
 

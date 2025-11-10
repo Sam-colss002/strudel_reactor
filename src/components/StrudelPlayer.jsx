@@ -364,7 +364,7 @@ function StrudelPlayer(context) {
                         </div>
                     </div>
 
-                    <div className="" id="leftPanel">
+                    <div className="" id="leftTopPanel">
                             <div id="liveAlertPlaceholder"></div>
 
                             <div className="unprocessedTextPanel" id="codePanel" 
@@ -382,7 +382,8 @@ function StrudelPlayer(context) {
                             </div>
                         </div>
                     
-                    <div className="" id="leftPanel">
+                    <div className="menuJustTextBox" id="leftBottomPanel">
+                        aaaa
                         <AudioGraph />
                     </div>
                 </div>
@@ -484,21 +485,15 @@ function StrudelPlayer(context) {
             </div>
             <div>
                 <div className="container-fluid">
-                    
                     <div className="row">
-                        
-
-                        
-                        
                     </div>
-                    
                 </div>
                 {/* this should only appear when errors detected -- relies on a conditionals state to show */}
                 
                 
                 < ErrorTextArea errorText={errorText} setErrorText={setErrorText} />
                 {/* { showErrText ? < ErrorTextArea defaultValue={showErrText} /> : null } */}
-                <canvas hidden id="roll"></canvas>
+                
             </div >
             
         </main >

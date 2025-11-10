@@ -13,6 +13,10 @@ import console_monkey_patch from '../console-monkey-patch';
 let strudelEditor = null;
 let processedSettings = [null, null, null];
 
+const handleD3Data = (event) => {
+    console.log(event.detail);
+};
+
 /**  */
 export class StrudelSetupClass{
     constructor(stranger_tune, setSongText, volume, cpm, reverb) {
@@ -49,17 +53,18 @@ export class StrudelSetupClass{
         //const absorbedContext = useContext(context);
 
         //const hasRun = useRef(false);
-        //document.addEventListener("d3Data", handleD3Data);
+        document.addEventListener("d3Data", handleD3Data);
             console_monkey_patch();
             //hasRun.current = true;
             //Code copied from example: https://codeberg.org/uzu/strudel/src/branch/main/examples/codemirror-repl
                 //init canvas
-                const canvas = document.getElementById('roll');
+                let canvas = document.getElementById('roll');
+                
                 canvas.width = canvas.width * 2;
                 canvas.height = canvas.height * 2;
                 const drawContext = canvas.getContext('2d');
                 const drawTime = [-2, 2]; // time window of drawn haps
-                
+                var context = canvas.getContext('2d');
                 strudelEditor = new StrudelMirror({
                     defaultOutput: webaudioOutput,
                     getTime: () => getAudioContext().currentTime,
