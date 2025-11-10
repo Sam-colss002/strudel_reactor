@@ -256,6 +256,15 @@ html, body {
   vertical-align: top !important;
 }
 
+.graphPanel {
+  display:inline-block;
+  color: inherit !important;
+  background-color: red !important;
+  width: calc(100%) !important;
+  padding-right: 1vh;
+  vertical-align: top !important;
+}
+
 .content-body .body-right {
   display:inline-block;
   color: inherit !important;

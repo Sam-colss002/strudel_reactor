@@ -12,6 +12,7 @@ import PreprocessTextArea from './PreprocessTextArea';
 import ErrorTextArea from './ErrorTextArea';
 import HelpPanel from './menu_controls/HelpPanel';
 import ConsolePanel from './menu_controls/ConsolePanel';
+import AudioGraph from './AudioGraph';
 import { StrudelSetupClass } from './StrudelSetup';
 import base from './BaseSettings';
 import { stringifyValues } from "@strudel/core";
@@ -38,7 +39,7 @@ function StrudelPlayer(context) {
     // // dj_controls
     // const [ reverb, setReverb ] = useState(base.DEFAULT_REVERB);
 
-    const [ visibleEditor, setVisibleEditor ] = useState(1);
+    const [ visibleEditor, setVisibleEditor ] = useState(0);
 
     // editor controls
     // const [ themeDropdown, setThemeDropdown] = useState(base.DEFAULT_THEME); // light is default for maximum effect
@@ -73,6 +74,9 @@ function StrudelPlayer(context) {
             strudelRef.setGlobalVolume(volume);
             strudelRef.setGlobalCPM(cpm);
             strudelRef.setGlobalReverb(reverb);
+            /* instead of these, it assign this.(...) to the params in StrudelSetup
+             * and use processedSettings array to prevent updating b4 process button clicked
+             */
         }
     }, []);
 
@@ -311,31 +315,31 @@ function StrudelPlayer(context) {
      * needs to properly alert ONCE
      * probably gonna be using custom events/button triggers, this is just for testing
     */
-    const alertPlaceholder = document.getElementById('liveAlertPlaceholder');
-    const appendAlert = (message, type) => {
-        const wrapper = document.createElement('div');
-        wrapper.innerHTML = [
-            `<div class="alert alert-${type} alert-dismissible" role="alert">`,
-            `   <div>${message}</div>`,
-            '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
-            '</div>'
-        ].join('');
+    // const alertPlaceholder = document.getElementById('liveAlertPlaceholder');
+    // const appendAlert = (message, type) => {
+    //     const wrapper = document.createElement('div');
+    //     wrapper.innerHTML = [
+    //         `<div class="alert alert-${type} alert-dismissible" role="alert">`,
+    //         `   <div>${message}</div>`,
+    //         '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
+    //         '</div>'
+    //     ].join('');
 
-        alertPlaceholder.append(wrapper);
-    }
+    //     alertPlaceholder.append(wrapper);
+    // }
 
-    const alertTrigger = document.getElementById('liveAlertBtn');
-    if (alertTrigger) {
-        alertTrigger.addEventListener('click', () => {
-            appendAlert('Nice, you triggered this alert message!', 'success');
-        })
-    }
-    if (alertTrigger) {
-        alertTrigger.addEventListener('btn-close', () => {
-            console.log("close!!");
-            appendAlert('Nice, you triggered this alert message!', 'success');
-        })
-    }
+    // const alertTrigger = document.getElementById('liveAlertBtn');
+    // if (alertTrigger) {
+    //     alertTrigger.addEventListener('click', () => {
+    //         appendAlert('Nice, you triggered this alert message!', 'success');
+    //     })
+    // }
+    // if (alertTrigger) {
+    //     alertTrigger.addEventListener('btn-close', () => {
+    //         console.log("close!!");
+    //         appendAlert('Nice, you triggered this alert message!', 'success');
+    //     })
+    // }
 
 
     return (
@@ -358,7 +362,6 @@ function StrudelPlayer(context) {
                                 setVisibleEditor((visibleEditor === 1) ? 0 : 1); }}>{(visibleEditor == 0) ? "Preprocessed Code" : "Processed Code"}
                             </button>
                         </div>
-                        
                     </div>
 
                     <div className="" id="leftPanel">
@@ -377,13 +380,14 @@ function StrudelPlayer(context) {
                                 <div className="editor" id="editor"/>
                                 
                             </div>
-
-                            
                         </div>
+                    
+                    <div className="" id="leftPanel">
+                        <AudioGraph />
+                    </div>
                 </div>
 
                 <div className="body-right">
-                    
                     <div className="menuNavBar row">
                         <MenuButtons theme={themeDropdown} defaultValue={activeBtn} onClick={(e) => {
                             setActiveBtn(e)
@@ -391,11 +395,6 @@ function StrudelPlayer(context) {
                     </div>
 
                     <div className="">
-                            {/* <div className="menuNavBar row">
-                                <MenuButtons theme={themeDropdown} defaultValue={activeBtn} onClick={(e) => {
-                                    setActiveBtn(e)
-                                }}/>
-                            </div> */}
                             <div className="rightPanel" id="rightPanel">
                                 <div className="HelpPanel" style={{ display: (activeBtn === "helpBtn") ? 'block' : 'none' }}>
                                     < HelpPanel />
@@ -480,9 +479,7 @@ function StrudelPlayer(context) {
                                     < ConsolePanel />
                                 </div>
                             </div>
-                            
-                        </div>
-
+                    </div>
                 </div>
             </div>
             <div>

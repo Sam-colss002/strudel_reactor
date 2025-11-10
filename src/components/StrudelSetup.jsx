@@ -36,7 +36,6 @@ export class StrudelSetupClass{
         let volumeToUse = parseFloat(this.volume);
         let cpmToUse = parseInt(this.cpm);
         let reverbToUse = parseFloat(this.reverb);
-        console.log("volume : " + volumeToUse);
         processedSettings = [this.volume, this.cpm, this.reverb];
         strudelEditor.setCode(procText);
     }
