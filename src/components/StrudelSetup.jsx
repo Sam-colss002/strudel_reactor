@@ -10,143 +10,47 @@ import { stranger_tune } from '../tunes';
 import console_monkey_patch from '../console-monkey-patch';
 
 
-
-// so many globals :O
 let strudelEditor = null;
-let bigVolume = null;
-let bigCPM = null;
-let bigReverb = null;
-let oldProcText = null;
-let processedSettings = [null, null, null]; // used to differentiate play vs proc&play
-
-let volumeRefd;
-let cpmRefd;
-let reverbRefd;
+let processedSettings = [null, null, null];
 
 /**  */
-export class StrudelSetupClass{ 
+export class StrudelSetupClass{
     constructor(stranger_tune, setSongText, volume, cpm, reverb) {
         this.volume = volume;
         this.cpm = cpm;
         this.reverb = reverb;
+        this.oldProcText = null;
     }
 
     testVolume() {
         return this.volume;
     }
 
-};
-
-export const Proc = () => {
+    Proc = () => {
     let procText = document.getElementById("proc").value;
-    oldProcText = document.getElementById("proc").value;
+    this.oldProcText = document.getElementById("proc").value;
     if (!procText || !strudelEditor) {
         strudelEditor.setCode(stranger_tune);
         return;
     } else {
-        let volumeToUse = parseFloat(bigVolume);
-        let cpmToUse = parseInt(bigCPM);
-        let reverbToUse = parseFloat(bigReverb);
+        let volumeToUse = parseFloat(this.volume);
+        let cpmToUse = parseInt(this.cpm);
+        let reverbToUse = parseFloat(this.reverb);
         console.log("volume : " + volumeToUse);
-        processedSettings = [cpmToUse, volumeToUse, reverbToUse];
+        processedSettings = [this.volume, this.cpm, this.reverb];
         strudelEditor.setCode(procText);
     }
-};
+    };
 
+    StrudelSetup( stranger_tune, setSongText, volume, cpm, reverb ) {
+        processedSettings = [volume, cpm, reverb];
+        //this.processedSettings = [volume, cpm, reverb];
+        /** on load the player needs to setup the strudel */
 
-// TODO: we're using global values here...
-export const setGlobalVolume = (value) => {
-    //console.log("setting bigVolume to : " + parseFloat(value));
-    bigVolume = value;
-}
+        //const absorbedContext = useContext(context);
 
-export const setGlobalCPM = (value) => {
-    //console.log("setting bigCPM to : " + parseInt(value));
-    bigCPM = parseInt(value);
-}
-
-export const setGlobalReverb = (value) => {
-    //console.log("setting bigReverb to : " + parseFloat(value));
-    bigReverb = parseFloat(value);
-}
-
-export const handlePlay = () => {
-    console.log("Playing Strudel");
-    if (strudelEditor) {
-        let procText = document.getElementById("proc").value;
-        let volumeToUse = parseFloat(bigVolume);
-        let cpmToUse = parseInt(bigCPM);
-        let reverbToUse = parseFloat(bigReverb);
-
-        // adds settings to code for use, then removes them to keep them hidden from user
-        if (oldProcText) {
-            strudelEditor.setCode((oldProcText + "\n" + "setcpm("+processedSettings[0]/4+")"+"\n" + "all(x => x.gain("+processedSettings[1]+").room("+processedSettings[2]+"));"+"\n"));
-            strudelEditor.evaluate();
-            strudelEditor.setCode(oldProcText);
-        } else {
-            strudelEditor.evaluate();
-        }
-    } else {
-        console.log("Failed condition checker in handlePlay");
-    }
-}
-
-export const handleStop = () => {
-    console.log("Strudel Stopped");
-    if (strudelEditor) {
-        strudelEditor.stop();
-    } else {
-        console.log("Failed condition checker in handleStop");
-    }
-}
-
-export const handleProc = () => {
-    console.log("Processing");
-    if (strudelEditor) {
-        Proc();
-    } else {
-        console.log("Failed condition checker in handleProc");
-    }
-}
-
-export const handleProcPlay = async () => {
-    console.log("Processing & Playing");
-    await initAudioOnFirstClick();
-    if (strudelEditor) {
-        Proc();
-        handleStop();
-        let procText = document.getElementById("proc").value;
-        let volumeToUse = parseFloat(bigVolume);
-        let cpmToUse = parseInt(bigCPM);
-        let reverbToUse = parseFloat(bigReverb);
-
-        strudelEditor.setCode((procText + "\n" + "setcpm("+cpmToUse/4+")"+"\n" + "all(x => x.gain("+volumeToUse+").room("+reverbToUse+"));"+"\n"));
-        strudelEditor.evaluate();
-        strudelEditor.setCode(procText);
-    } else {
-        console.log("Failed condition checker in handleProcPlay");
-    }
-}
-
-export const testSetupFunction = () => {
-    return "success?";
-}
-
-export const handleReset = () => {
-    console.log("Resetting strudelEditor");
-    handleStop();
-    strudelEditor.setCode(stranger_tune);
-}
-
-export function StrudelSetup( stranger_tune, setSongText, volume, cpm, reverb ) {
-    console.log("volumeaaaaaaa : " + volume );
-
-    /** on load the player needs to setup the strudel */
-
-    //const absorbedContext = useContext(context);
-
-    //const hasRun = useRef(false);
-    //document.addEventListener("d3Data", handleD3Data);
+        //const hasRun = useRef(false);
+        //document.addEventListener("d3Data", handleD3Data);
             console_monkey_patch();
             //hasRun.current = true;
             //Code copied from example: https://codeberg.org/uzu/strudel/src/branch/main/examples/codemirror-repl
@@ -180,5 +84,88 @@ export function StrudelSetup( stranger_tune, setSongText, volume, cpm, reverb ) 
             
             setSongText(stranger_tune);
             
-            Proc(); // welcome back, Proc()   lol
-}
+        this.Proc(); // welcome back, Proc()   lol
+    }
+
+    // TODO: we're using global values here...
+    setGlobalVolume = (value) => {
+        //console.log("setting bigVolume to : " + parseFloat(value));
+        this.volume = value;
+    }
+
+    setGlobalCPM = (value) => {
+        //console.log("setting bigCPM to : " + parseInt(value));
+        this.cpm = parseInt(value);
+    }
+
+    setGlobalReverb = (value) => {
+        //console.log("setting bigReverb to : " + parseFloat(value));
+        this.reverb = parseFloat(value);
+    }
+
+    handlePlay = () => {
+        console.log("Playing Strudel");
+        if (strudelEditor) {
+            let procText = document.getElementById("proc").value;
+            let volumeToUse = parseFloat(processedSettings[0]);
+            let cpmToUse = parseInt(processedSettings[1]);
+            let reverbToUse = parseFloat(processedSettings[2]);
+            console.log("playing with (Vol|CPM|Rev) : " + "("+processedSettings[0]+"|"+processedSettings[1]+"|"+processedSettings[2]+")");
+
+            // adds settings to code for use, then removes them to keep them hidden from user
+            if (this.oldProcText) {
+                strudelEditor.setCode((this.oldProcText + "\n" + "setcpm("+processedSettings[0]/4+")"+"\n" + "all(x => x.gain("+processedSettings[1]+").room("+processedSettings[2]+"));"+"\n"));
+                strudelEditor.evaluate();
+                strudelEditor.setCode(this.oldProcText);
+            } else {
+                strudelEditor.evaluate();
+            }
+        } else {
+            console.log("Failed condition checker in handlePlay");
+        }
+    }
+
+    handleStop = () => {
+        console.log("Strudel Stopped");
+        if (strudelEditor) {
+            strudelEditor.stop();
+        } else {
+            console.log("Failed condition checker in handleStop");
+        }
+    }
+
+    handleProc = () => {
+        console.log("Processing");
+        if (strudelEditor) {
+            this.Proc();
+        } else {
+            console.log("Failed condition checker in handleProc");
+        }
+    }
+
+    handleProcPlay = async () => {
+        console.log("Processing & Playing");
+        await initAudioOnFirstClick();
+        if (strudelEditor) {
+            this.Proc();
+            this.handleStop();
+            let procText = document.getElementById("proc").value;
+            let volumeToUse = parseFloat(this.volume);
+            let cpmToUse = parseInt(this.cpm);
+            let reverbToUse = parseFloat(this.reverb);
+
+            strudelEditor.setCode((procText + "\n" + "setcpm("+cpmToUse/4+")"+"\n" + "all(x => x.gain("+volumeToUse+").room("+reverbToUse+"));"+"\n"));
+            strudelEditor.evaluate();
+            strudelEditor.setCode(procText);
+        } else {
+            console.log("Failed condition checker in handleProcPlay");
+        }
+    }
+
+    handleReset = () => {
+        console.log("Resetting strudelEditor");
+        this.handleStop();
+        strudelEditor.setCode(stranger_tune);
+    }
+
+};

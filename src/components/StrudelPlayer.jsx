@@ -12,8 +12,7 @@ import PreprocessTextArea from './PreprocessTextArea';
 import ErrorTextArea from './ErrorTextArea';
 import HelpPanel from './menu_controls/HelpPanel';
 import ConsolePanel from './menu_controls/ConsolePanel';
-import { setGlobalCPM, setGlobalReverb, StrudelSetup, StrudelSetupClass } from './StrudelSetup';
-import { handlePlay, handleStop, handleProc, handleProcPlay, handleReset, Proc, setGlobalVolume} from './StrudelSetup';
+import { StrudelSetupClass } from './StrudelSetup';
 import base from './BaseSettings';
 import { stringifyValues } from "@strudel/core";
 import ResetControlsButton from "./editor_controls/ResetControlsButton";
@@ -49,7 +48,7 @@ function StrudelPlayer(context) {
         themeDropdown, setThemeDropdown, codeFontSize, 
         setCodeFontSize, reverb, setReverb } = useContext(StrudelContext);
 
-    let testClassObj = new StrudelSetupClass(stranger_tune, setSongText, volume, cpm, reverb );
+    let strudelRef = new StrudelSetupClass(stranger_tune, setSongText, volume, cpm, reverb );
 
     const getSettingValues = ReturnSettingValues();
 
@@ -70,10 +69,10 @@ function StrudelPlayer(context) {
             document.getElementById("consolePanelText").innerText = "";
             console.log("hasRun is false; setting up Strudel");
             hasRun.current = true;
-            StrudelSetup(stranger_tune, setSongText, ReturnSettingValues );
-            setGlobalVolume(volume);
-            setGlobalCPM(cpm);
-            setGlobalReverb(reverb);
+            strudelRef.StrudelSetup(stranger_tune, setSongText, volume, cpm, reverb );
+            strudelRef.setGlobalVolume(volume);
+            strudelRef.setGlobalCPM(cpm);
+            strudelRef.setGlobalReverb(reverb);
         }
     }, []);
 
@@ -83,7 +82,7 @@ function StrudelPlayer(context) {
     useEffect((e) => {
         //console.log("Second useEffect in StrudelPlayer called");
         onHandleFontSize(); // double call wont stop padding from not updating, so this has to be here
-        console.log("testClassObj.testVolume : " + testClassObj.testVolume());
+        console.log("strudelRef.testVolume : " + strudelRef.testVolume());
 
         // add listener to print logs into console panel
         //document.getElementById("consolePanelText").addEventListener("useState", onHandleConsolePanel(e));
@@ -109,7 +108,7 @@ function StrudelPlayer(context) {
         console.log("Resetting editor")
         setSongText(stranger_tune);
         document.getElementById("proc").value=stranger_tune;
-        Proc();
+        strudelRef.Proc();
     }
 
     /** will reset controls to default; not the loaded settings */
@@ -120,9 +119,9 @@ function StrudelPlayer(context) {
         setVolume(base.DEFAULT_VOLUME);
         setCPM(base.DEFAULT_CPM);
         setThemeDropdown(base.DEFAULT_THEME);
-        setGlobalVolume(base.DEFAULT_VOLUME);
-        setGlobalCPM(base.DEFAULT_CPM);
-        setReverb(base.DEFAULT_REVERB);
+        strudelRef.setGlobalVolume(base.DEFAULT_VOLUME);
+        strudelRef.setGlobalCPM(base.DEFAULT_CPM);
+        strudelRef.setReverb(base.DEFAULT_REVERB);
         document.getElementById("checkbox_1").checked = document.getElementById("checkbox_1").defaultChecked;
         document.getElementById("checkbox_2").checked = document.getElementById("checkbox_2").defaultChecked;
     }
@@ -148,19 +147,19 @@ function StrudelPlayer(context) {
     const onHandleReverb = (e) => {
         let newReverb = parseFloat(e.target.value);
         setReverb(newReverb);
-        setGlobalReverb(newReverb);
+        strudelRef.setGlobalReverb(newReverb);
     }
 
     const onHandleVolume = (e) => {
         let newVolume = parseFloat(e.target.value);
         setVolume(newVolume);
-        setGlobalVolume(newVolume);
+        strudelRef.setGlobalVolume(newVolume);
     };
 
     const onHandleCPM = (e) => {
         let newCPM = parseFloat(e.target.value);
         setCPM(newCPM);
-        setGlobalCPM(newCPM);
+        strudelRef.setGlobalCPM(newCPM);
     };
 
     /** creates JSON-valid data to save as a JSON file */
@@ -239,10 +238,10 @@ function StrudelPlayer(context) {
             setVolume(settingsJSON["volume"]);
             setCPM(settingsJSON["cpm"]);
             setThemeDropdown(settingsJSON["theme"]);
-            setGlobalVolume(settingsJSON["volume"]);
-            setGlobalCPM(settingsJSON["cpm"]);
+            strudelRef.setGlobalVolume(settingsJSON["volume"]);
+            strudelRef.setGlobalCPM(settingsJSON["cpm"]);
             setReverb(settingsJSON["reverb"]);
-            setGlobalReverb(settingsJSON["cpm"]);
+            strudelRef.setGlobalReverb(settingsJSON["cpm"]);
             if (base.DEBUG_MODE) {
                 document.getElementById("checkbox_1").checked = settingsJSON["checkbox1"];
                 document.getElementById("checkbox_2").checked = settingsJSON["checkbox2"];
@@ -345,8 +344,8 @@ function StrudelPlayer(context) {
             <div className="bg-header-bar">
                 <div className="h2 b">Strudel Demo</div>
                 <div className="playButtons">
-                    <PlayButtons onPlay={handlePlay} onStop={handleStop} />
-                    <ProcButtons onProc={handleProc} onProcPlay={handleProcPlay} onReset={handleReset} />
+                    <PlayButtons onPlay={strudelRef.handlePlay} onStop={strudelRef.handleStop} />
+                    <ProcButtons onProc={strudelRef.handleProc} onProcPlay={strudelRef.handleProcPlay} onReset={strudelRef.handleReset} />
                 </div>
             </div>
             {/* all content below header bar */}
