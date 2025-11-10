@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useContext, useMemo } from "react";
 import { stranger_tune } from '../tunes';
 import console_monkey_patch from '../console-monkey-patch';
 
@@ -12,7 +12,7 @@ import PreprocessTextArea from './PreprocessTextArea';
 import ErrorTextArea from './ErrorTextArea';
 import HelpPanel from './menu_controls/HelpPanel';
 import ConsolePanel from './menu_controls/ConsolePanel';
-import { setGlobalCPM, setGlobalReverb, StrudelSetup } from './StrudelSetup';
+import { setGlobalCPM, setGlobalReverb, StrudelSetup, StrudelSetupClass } from './StrudelSetup';
 import { handlePlay, handleStop, handleProc, handleProcPlay, handleReset, Proc, setGlobalVolume} from './StrudelSetup';
 import base from './BaseSettings';
 import { stringifyValues } from "@strudel/core";
@@ -22,35 +22,55 @@ import Accordion from 'react-bootstrap/Accordion';
 import { useAccordionButton } from 'react-bootstrap/AccordionButton';
 import Card from 'react-bootstrap/Card';
 
+import { StrudelContext } from "../App";
 let defaultTune = stranger_tune;
+let setupMethods;
 
-function StrudelPlayer() {
+function StrudelPlayer(context) {
     const hasRun = useRef(false);
     const [ songText, setSongText ] = useState("");
     const [ activeBtn, setActiveBtn ] = useState(base.DEFAULT_MENU);
     const [ errorText, setErrorText ] = useState("");
 
     // audio_controls
-    const [ volume, setVolume ] = useState(base.DEFAULT_VOLUME);
-    const [ cpm, setCPM ] = useState(base.DEFAULT_CPM);
+    // const [ volume, setVolume ] = useState(base.DEFAULT_VOLUME);
+    // const [ cpm, setCPM ] = useState(base.DEFAULT_CPM);
 
-    // dj_controls
-    const [ reverb, setReverb ] = useState(base.DEFAULT_REVERB);
+    // // dj_controls
+    // const [ reverb, setReverb ] = useState(base.DEFAULT_REVERB);
 
     const [ visibleEditor, setVisibleEditor ] = useState(1);
 
     // editor controls
-    const [ themeDropdown, setThemeDropdown] = useState(base.DEFAULT_THEME); // light is default for maximum effect
-    const [ codeFontSize, setCodeFontSize ] = useState(base.DEFAULT_FONT_SIZE);
+    // const [ themeDropdown, setThemeDropdown] = useState(base.DEFAULT_THEME); // light is default for maximum effect
+    // const [ codeFontSize, setCodeFontSize ] = useState(base.DEFAULT_FONT_SIZE);
+
+    const { volume, setVolume, cpm, setCPM, 
+        themeDropdown, setThemeDropdown, codeFontSize, 
+        setCodeFontSize, reverb, setReverb } = useContext(StrudelContext);
+
+    let testClassObj = new StrudelSetupClass(stranger_tune, setSongText, volume, cpm, reverb );
+
+    const getSettingValues = ReturnSettingValues();
+
+    function ReturnSettingValues() {
+        return {
+            volume,
+            cpm,
+            reverb
+        }
+    } 
+
 
     /** on load the player needs to setup the strudel */
     useEffect((e) => {
         if (!hasRun.current) {
+            
             console.log("\nLoading Strudel Player...");
             document.getElementById("consolePanelText").innerText = "";
             console.log("hasRun is false; setting up Strudel");
             hasRun.current = true;
-            StrudelSetup(stranger_tune, setSongText);
+            StrudelSetup(stranger_tune, setSongText, ReturnSettingValues );
             setGlobalVolume(volume);
             setGlobalCPM(cpm);
             setGlobalReverb(reverb);
@@ -63,6 +83,7 @@ function StrudelPlayer() {
     useEffect((e) => {
         //console.log("Second useEffect in StrudelPlayer called");
         onHandleFontSize(); // double call wont stop padding from not updating, so this has to be here
+        console.log("testClassObj.testVolume : " + testClassObj.testVolume());
 
         // add listener to print logs into console panel
         //document.getElementById("consolePanelText").addEventListener("useState", onHandleConsolePanel(e));
