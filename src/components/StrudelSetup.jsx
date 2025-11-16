@@ -13,9 +13,9 @@ import console_monkey_patch from '../console-monkey-patch';
 let strudelEditor = null;
 let processedSettings = [null, null, null];
 
-const handleD3Data = (event) => {
-    console.log(event.detail);
-    console.log("aaaaaaa");
+const handleD3DataUnused = (event) => {
+    // console.log("handleD3Data is using setStrudelData");
+    // setStrudelData(event.detail);
 };
 
 /**  */
@@ -55,18 +55,18 @@ export class StrudelSetupClass{
         //const absorbedContext = useContext(context);
 
         //const hasRun = useRef(false);
-        document.addEventListener("d3Data", handleD3Data);
+        document.addEventListener("d3Data", handleD3DataUnused);
             console_monkey_patch();
             //hasRun.current = true;
             //Code copied from example: https://codeberg.org/uzu/strudel/src/branch/main/examples/codemirror-repl
                 //init canvas
-                let canvas = document.getElementById('roll');
-                
-                canvas.width = canvas.width * 2;
-                canvas.height = canvas.height * 2;
-                const drawContext = canvas.getContext('2d');
+                let svg = document.getElementById('roll');
+                // canvas replaced with svg
+                svg.width = svg.width * 2;
+                svg.height = svg.height * 2;
+                const drawContext = svg.getContext('2d');
                 const drawTime = [-2, 2]; // time window of drawn haps
-                var context = canvas.getContext('2d');
+                var context = svg.getContext('2d');
                 strudelEditor = new StrudelMirror({
                     defaultOutput: webaudioOutput,
                     getTime: () => getAudioContext().currentTime,
@@ -140,6 +140,7 @@ export class StrudelSetupClass{
         }
     }
 
+    // use this: strudelEditor.repl?.state?.started
     handleStop = () => {
         console.log("Strudel Stopped");
         if (strudelEditor) {

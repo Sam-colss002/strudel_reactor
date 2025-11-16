@@ -23,10 +23,13 @@ import { useAccordionButton } from 'react-bootstrap/AccordionButton';
 import Card from 'react-bootstrap/Card';
 
 import { StrudelContext } from "../App";
+import { theme } from "@strudel/codemirror";
 let defaultTune = stranger_tune;
 let setupMethods;
 
+
 function StrudelPlayer(context) {
+
     const hasRun = useRef(false);
     const [ songText, setSongText ] = useState("");
     const [ activeBtn, setActiveBtn ] = useState(base.DEFAULT_MENU);
@@ -47,7 +50,7 @@ function StrudelPlayer(context) {
 
     const { volume, setVolume, cpm, setCPM, 
         themeDropdown, setThemeDropdown, codeFontSize, 
-        setCodeFontSize, reverb, setReverb } = useContext(StrudelContext);
+        setCodeFontSize, reverb, setReverb, strudelData, setStrudelData } = useContext(StrudelContext);
 
     let strudelRef = new StrudelSetupClass(stranger_tune, setSongText, volume, cpm, reverb );
 
@@ -61,7 +64,11 @@ function StrudelPlayer(context) {
         }
     } 
 
-
+    function handleD3Data(e) {
+        let temp = e.detail;
+        setStrudelData(String(temp));
+    }
+    
     /** on load the player needs to setup the strudel */
     useEffect((e) => {
         if (!hasRun.current) {
@@ -71,37 +78,36 @@ function StrudelPlayer(context) {
             console.log("hasRun is false; setting up Strudel");
             hasRun.current = true;
             strudelRef.StrudelSetup(stranger_tune, setSongText, volume, cpm, reverb );
+            document.addEventListener("d3Data", handleD3Data);
             strudelRef.setGlobalVolume(volume);
             strudelRef.setGlobalCPM(cpm);
             strudelRef.setGlobalReverb(reverb);
+            
+            
             /* instead of these, it assign this.(...) to the params in StrudelSetup
              * and use processedSettings array to prevent updating b4 process button clicked
              */
         }
-    }, []);
-
-
-
+    }, [hasRun.current]);
+    
     /** Called upon *every* update. For only very sparing use  */
     useEffect((e) => {
+        console.log("update triggered");
         //console.log("Second useEffect in StrudelPlayer called");
         onHandleFontSize(); // double call wont stop padding from not updating, so this has to be here
         console.log("strudelRef.testVolume : " + strudelRef.testVolume());
-
         // add listener to print logs into console panel
         //document.getElementById("consolePanelText").addEventListener("useState", onHandleConsolePanel(e));
         
     });
 
-    // broken
-    function onHandleConsolePanel(e) {
-        //document.getElementById("consolePanelText").innerText += "\n"+e+"\n";
-    }
-
     const [ showErrText, setShowErrText ] = useState(false) // for later use
+
+    
 
     /** forces the panels to update text according to current settings */
     function onHandleFontSize() {
+        console.log("a : " + codeFontSize);
         let padding = codeFontSize * 2;
         document.getElementById("editor").style.cssText = `a:display: block; background-color: var(--background); font-size: `+codeFontSize+`px; font-family: monospace;`;
         document.getElementById("proc").style.cssText = `resize: none; font-size: `+codeFontSize+`px;`+`padding-left:`+padding+`px;`;
@@ -122,10 +128,11 @@ function StrudelPlayer(context) {
         onHandleFontSize();
         setVolume(base.DEFAULT_VOLUME);
         setCPM(base.DEFAULT_CPM);
+        setReverb(base.DEFAULT_REVERB);
         setThemeDropdown(base.DEFAULT_THEME);
         strudelRef.setGlobalVolume(base.DEFAULT_VOLUME);
         strudelRef.setGlobalCPM(base.DEFAULT_CPM);
-        strudelRef.setReverb(base.DEFAULT_REVERB);
+        strudelRef.setGlobalReverb(base.DEFAULT_REVERB);
         document.getElementById("checkbox_1").checked = document.getElementById("checkbox_1").defaultChecked;
         document.getElementById("checkbox_2").checked = document.getElementById("checkbox_2").defaultChecked;
     }
@@ -155,9 +162,9 @@ function StrudelPlayer(context) {
     }
 
     const onHandleVolume = (e) => {
-        let newVolume = parseFloat(e.target.value);
-        setVolume(newVolume);
-        strudelRef.setGlobalVolume(newVolume);
+        //let newVolume = parseFloat(e.target.value);
+        //setVolume(newVolume);
+        strudelRef.setGlobalVolume(volume);
     };
 
     const onHandleCPM = (e) => {
@@ -383,8 +390,8 @@ function StrudelPlayer(context) {
                         </div>
                     
                     <div className="menuJustTextBox" id="leftBottomPanel">
-                        aaaa
-                        <AudioGraph />
+                        <canvas hidden id="roll"></canvas>
+                        <AudioGraph strudelData={strudelData} />
                     </div>
                 </div>
 
@@ -431,7 +438,6 @@ function StrudelPlayer(context) {
                                                     onHandleGeneric={onHandleGeneric}
                                                     onHandleVolume={onHandleVolume}
                                                     onHandleCPM={onHandleCPM}
-                                                    theme={themeDropdown}
                                                 />
                                             </Accordion.Body>
                                         </Accordion.Item>
@@ -462,9 +468,8 @@ function StrudelPlayer(context) {
                                                     setThemeDropdown={setThemeDropdown}
 
                                                     onHandleGeneric={onHandleGeneric}
-                                                    onHandleFontSize={onHandleFontSize}
                                                     onHandleResetControls={onHandleResetControls}
-                                                    theme={themeDropdown}
+                                                    onHandleFontSize={onHandleFontSize}
                                                 />
                                             </Accordion.Body>
                                         </Accordion.Item>

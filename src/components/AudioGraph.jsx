@@ -1,16 +1,26 @@
+import { useState, useEffect } from 'react';
+import * as d3 from 'd3';
 
-import { useEffect, useRef, useState, useContext, useMemo } from "react";
-import React from 'react';
+function LogToNum(input) {
+    if (!input) { return 0 };
 
-function AudioGraph({  }) {
-    return (
-        <>
-            <div className="">
-                a 
-                <canvas hidden id="roll"></canvas>
-            </div>
-        </>
-    )
+    return 0;
 }
 
-export default AudioGraph;
+export default function AudioGraph() {
+
+    const [graphArray, setGraphArray] = useState([]);
+    const maxItems = 100;
+
+
+    return (
+        <>
+            <h4>graph</h4>
+            <svg
+                width="100%"
+                height="100%"
+                style={{ display: "block" }}
+            />
+        </>
+    );
+}

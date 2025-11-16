@@ -256,13 +256,15 @@ html, body {
   vertical-align: top !important;
 }
 
-.content-body .body-left #leftBottomPanel {
-  display:inline-block;
+#leftBottomPanel, .canvas {
+  display:flex;
   color: inherit !important;
-  background-color: red !important;
+  background-color: var(--tertiaryColour) !important;
   width: calc(100%) !important;
-  padding-right: 1vh;
-  vertical-align: bottom !important;
+  height: 40vh !important;
+  padding-top:1vh;
+  padding-right: 0vh;
+  padding-left: 0vh;
 }
 
 .canvas {
@@ -271,6 +273,12 @@ html, body {
   background-color: red !important;
   width: calc(100%) !important;
   vertical-align: top !important;
+  height:max-content !important;
+}
+
+.svg {
+  width:100%;
+  height:100%;
 }
 
 .content-body .body-right {
@@ -429,18 +437,32 @@ html, body {
 
 /* custom for menu labels to sync their widths  */
 .menu_label_subject {
-  width: 12vh;
+  text-align: left !important;
+  width: 12.0vh;
   height: 5vh;
 }
 
 .menu_label_value, .menu_label_subject_minor {
-  width: 8.5vh;
   height: 5vh;
   background-color: var(--secondaryColour);
   color: var(--editorTextColour) !important;
   border-color: var(--foreground);
   font-family: var(--font); 
   
+}
+
+.menu_label_value_full {
+  min-width: 8.0vh !important;
+}
+
+.menu_label_value_half {
+  min-width: 4.0vh !important;
+  max-width: 15.0vh !important;
+}
+
+ .menu_label_subject_minor {
+  width: 7.0vh !important;
+  text-align: center !important;
 }
 
 .ͼ1 .cm-scroller, .cm_scroller, .cm-gutter {
