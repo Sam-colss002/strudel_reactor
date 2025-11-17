@@ -44,7 +44,7 @@ export default function App() {
             //log: (t) => console.log(t)
         }
         // in order for things to be updated properly, these need to be returned
-    }, [volume, cpm, reverb, themeDropdown, codeFontSize, strudelData]);
+    }, [volume, cpm, reverb, themeDropdown, codeFontSize, strudelData, setStrudelData ]);
         //const [strudelState, setStrudelState] = useState(state);
 
     return (

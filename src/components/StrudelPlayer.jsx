@@ -28,12 +28,14 @@ let defaultTune = stranger_tune;
 let setupMethods;
 
 
-function StrudelPlayer(context) {
+function StrudelPlayer() {
 
     const hasRun = useRef(false);
     const [ songText, setSongText ] = useState("");
     const [ activeBtn, setActiveBtn ] = useState(base.DEFAULT_MENU);
     const [ errorText, setErrorText ] = useState("");
+
+    let testArray = [ 1 ];
 
     // audio_controls
     // const [ volume, setVolume ] = useState(base.DEFAULT_VOLUME);
@@ -54,8 +56,8 @@ function StrudelPlayer(context) {
 
     let strudelRef = new StrudelSetupClass(stranger_tune, setSongText, volume, cpm, reverb );
 
+    // TODO: unused?
     const getSettingValues = ReturnSettingValues();
-
     function ReturnSettingValues() {
         return {
             volume,
@@ -65,8 +67,14 @@ function StrudelPlayer(context) {
     } 
 
     function handleD3Data(e) {
-        let temp = e.detail;
-        setStrudelData(String(temp));
+        console.log("strudel data being set in StrudelPlayer");
+        // let temp = e.detail;
+        // testArray.push( Math.floor( Math.random() * 10 ) );
+        // if (testArray.length > 100) {
+        //     testArray.shift();
+        // }
+        // setStrudelData( testArray );
+        return;
     }
     
     /** on load the player needs to setup the strudel */
@@ -391,7 +399,7 @@ function StrudelPlayer(context) {
                     
                     <div className="menuJustTextBox" id="leftBottomPanel">
                         <canvas hidden id="roll"></canvas>
-                        <AudioGraph strudelData={strudelData} />
+                        <AudioGraph context={StrudelContext} />
                     </div>
                 </div>
 
