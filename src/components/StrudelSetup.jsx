@@ -8,6 +8,7 @@ import { getAudioContext, webaudioOutput, registerSynthSounds } from '@strudel/w
 import { registerSoundfonts } from '@strudel/soundfonts';
 import { stranger_tune } from '../tunes';
 import console_monkey_patch from '../console-monkey-patch';
+import * as d3 from 'd3';
 
 
 let strudelEditor = null;
@@ -20,10 +21,11 @@ const handleD3DataUnused = (event) => {
 
 /**  */
 export class StrudelSetupClass{
-    constructor(stranger_tune, setSongText, volume, cpm, reverb) {
+    constructor(stranger_tune, setSongText, volume, cpm, reverb, speed) {
         this.volume = volume;
         this.cpm = cpm;
         this.reverb = reverb;
+        this.speed = 1;
         this.oldProcText = null;
     }
 
@@ -32,6 +34,7 @@ export class StrudelSetupClass{
     }
 
     Proc = () => {
+        console.log("aaaaa : " + this.volume);
         let procText = document.getElementById("proc").value;
         this.oldProcText = document.getElementById("proc").value;
         if (!procText || !strudelEditor) {
@@ -41,31 +44,25 @@ export class StrudelSetupClass{
             let volumeToUse = parseFloat(this.volume);
             let cpmToUse = parseInt(this.cpm);
             let reverbToUse = parseFloat(this.reverb);
-            processedSettings = [this.volume, this.cpm, this.reverb];
+            let speedToUse = parseFloat(this.speed);
+            processedSettings = [this.volume, this.cpm, this.reverb, this.speed];
             strudelEditor.setCode(procText);
         }
     };
 
     StrudelSetup( stranger_tune, setSongText, volume, cpm, reverb ) {
         processedSettings = [volume, cpm, reverb];
-        
-        //this.processedSettings = [volume, cpm, reverb];
-        /** on load the player needs to setup the strudel */
 
-        //const absorbedContext = useContext(context);
-
-        //const hasRun = useRef(false);
-        document.addEventListener("d3Data", handleD3DataUnused);
             console_monkey_patch();
             //hasRun.current = true;
             //Code copied from example: https://codeberg.org/uzu/strudel/src/branch/main/examples/codemirror-repl
                 //init canvas
                 let svg = document.getElementById('roll');
-                // canvas replaced with svg
-                svg.width = svg.width * 2;
-                svg.height = svg.height * 2;
+                // // canvas replaced with svg
+                // svg.width = svg.width * 2;
+                // svg.height = svg.height * 2;
                 const drawContext = svg.getContext('2d');
-                const drawTime = [-2, 2]; // time window of drawn haps
+                const drawTime = [0, 0]; // time window of drawn haps
                 var context = svg.getContext('2d');
                 strudelEditor = new StrudelMirror({
                     defaultOutput: webaudioOutput,
@@ -73,8 +70,17 @@ export class StrudelSetupClass{
                     transpiler,
                     root: document.getElementById('editor'),
                     drawTime,
-                    onDraw: (haps, time) => 
-                        drawPianoroll({ haps, time, ctx: drawContext, drawTime, fold: 0 }),
+                    onDraw: (haps, time) => {
+                        drawPianoroll({ haps, time, ctx: drawContext, drawTime, fold: 0 })
+
+                        if (haps.length > 0) {
+                            const lastGain = haps[haps.length - 2].value.gain ?? 1;
+                            const lastPostGain = haps[haps.length - 2].value.postgain ?? 1;
+                            const lastDry = haps[haps.length - 2].value.dry ?? 1;
+                            const combGain = lastGain * lastPostGain * lastDry;
+                            document.dispatchEvent(new CustomEvent("d3DataHap", { detail: {combined:combGain} }));
+                        }
+                    },
                     prebake: async () => {
                         initAudioOnFirstClick(); // needed to make the browser happy (don't await this here..)
                         const loadModules = evalScope(
@@ -87,10 +93,12 @@ export class StrudelSetupClass{
                         await Promise.all([loadModules, registerSynthSounds(), registerSoundfonts()]);
                     },
                 });
+
             
             setSongText(stranger_tune);
-            
-        this.Proc(); // welcome back, Proc()   lol
+        
+        
+        //this.Proc(); // welcome back, Proc()   lol
     }
 
     // TODO: we're using global values here...
@@ -111,29 +119,43 @@ export class StrudelSetupClass{
 
     handlePlay = () => {
         console.log("Playing Strudel");
-        if (strudelEditor) {
+        document.dispatchEvent(new CustomEvent("clearD3Data", { detail: "a" }));
+        if (strudelEditor && !strudelEditor.repl?.state?.started) {
             let procText = document.getElementById("proc").value;
             let volumeToUse = parseFloat(processedSettings[0]);
             let cpmToUse = parseInt(processedSettings[1]);
             let reverbToUse = parseFloat(processedSettings[2]);
+            let speedToUse = parseFloat(this.speed);
             console.log("playing with (Vol|CPM|Rev) : " + "("+processedSettings[0]+"|"+processedSettings[1]+"|"+processedSettings[2]+")");
 
             // adds settings to code for use, then removes them to keep them hidden from user
             if (this.oldProcText) {
                 strudelEditor.setCode((
-                procText + "\n" + 
-                "all(x => x.log())" + "\n" + 
-                "setcpm("+cpmToUse/4+")"+"\n" + 
-                "all(x => x.gain("+volumeToUse+").room("+reverbToUse+"));"+"\n"));
-
-                // strudelEditor.setCode( ( this.oldProcText+"\n"+"all(x => x.log())"+"\n"+"setcpm("+processedSettings[0]/4+")"+"\n" + 
-                //     "all(x => x.gain("+processedSettings[1]+").room("+processedSettings[2]+"));"+"\n" ));
+                    procText + "\n" + 
+                    "all(x => x.log())" + "\n" + 
+                    "setcpm("+cpmToUse/4*speedToUse+")"+"\n" + 
+                    "all(x => x.dry("+volumeToUse+").room("+reverbToUse+"));"+"\n"));
                 strudelEditor.evaluate();
                 strudelEditor.setCode(this.oldProcText);
+                // strudelEditor.setCode((
+                // procText + "\n" + 
+                // "all(x => x.log())" + "\n" + 
+                // "setcpm("+cpmToUse/4+")"+"\n" + 
+                // "all(x => x.dry("+volumeToUse+").room("+reverbToUse+"));"+"\n"));
+                // strudelEditor.evaluate();
+                // strudelEditor.setCode(this.oldProcText);
             } else {
-                strudelEditor.setCode(procText + "\n" + 
-                "all(x => x.log())")
-                strudelEditor.evaluate();
+                
+                strudelEditor.setCode(
+                    procText + "\n" + 
+                    "setcpm("+cpmToUse/4*speedToUse+")"+"\n" + 
+                    "all(x => x.dry("+volumeToUse+").room("+reverbToUse+"));"+"\n");
+                if (!strudelEditor.repl?.state?.started) {
+                    strudelEditor.stop();
+                    strudelEditor.evaluate();
+                } else {
+                    console.log("CANT START - ALREADY PLAYING");
+                }
             }
         } else {
             console.log("Failed condition checker in handlePlay");
@@ -161,20 +183,32 @@ export class StrudelSetupClass{
 
     handleProcPlay = async () => {
         console.log("Processing & Playing");
-        await initAudioOnFirstClick();
+        document.dispatchEvent(new CustomEvent("clearD3Data", { detail: "a" }));
         if (strudelEditor) {
             this.Proc();
-            this.handleStop();
+            strudelEditor.stop();
             let procText = document.getElementById("proc").value;
             let volumeToUse = parseFloat(this.volume);
             let cpmToUse = parseInt(this.cpm);
             let reverbToUse = parseFloat(this.reverb);
+            let speedToUse = parseFloat(this.speed);
+            // "all(x => x.gain("+volumeToUse+").room("+reverbToUse+"));"+"\n")
+            // 0:."+volumeToUse+"
+            // "<0 2 3 10:.5>"
+
             strudelEditor.setCode((
                 procText + "\n" + 
-                "all(x => x.log())" + "\n" + 
-                "setcpm("+cpmToUse/4+")"+"\n" + 
-                "all(x => x.gain("+volumeToUse+").room("+reverbToUse+"));"+"\n"));
+                    "all(x => x.log())" + "\n" + 
+                    "setcpm("+cpmToUse/4*speedToUse+")"+"\n" + 
+                    "all(x => x.dry("+volumeToUse+").room("+reverbToUse+"));"+"\n"));
             strudelEditor.evaluate();
+            // strudelEditor.setCode((
+            //     procText + "\n" + 
+            //     "all(x => x.log())" + "\n" + 
+            //     "setcpm("+cpmToUse/4+")"+"\n" + 
+            //     "all(x => x.dry("+volumeToUse+").room("+reverbToUse+"));"+"\n")
+            // );
+            // strudelEditor.evaluate();
             strudelEditor.setCode(procText);
         } else {
             console.log("Failed condition checker in handleProcPlay");

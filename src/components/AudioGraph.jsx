@@ -2,13 +2,7 @@ import { useState, useEffect, useRef, useContext } from 'react';
 import * as d3 from 'd3';
 import { StrudelContext } from "../App";
 
-function LogToNum(input) {
-    if (!input) { return 0 };
-
-    return 0;
-}
-
-let testArray = [ 0 ];
+let maxValue = 0.1;
 
 export default function AudioGraph() {
     const hasRun = useRef(false);
@@ -17,65 +11,50 @@ export default function AudioGraph() {
      */
     let { strudelData, setStrudelData } = useContext(StrudelContext);
     
-    const [ graphNumber, setGraphNumber ] = useState(0);
+    //const [ graphNumber, setGraphNumber ] = useState(0);
     // the graph array contains every currently displayed point on the graph
     const [ graphArray, setGraphArray] = useState([]);
     const maxItems = 100;
-    const timeOut = 25;
-    const maxValue = 20;
+    //const maxValue = 3; // yAxis limit
+    //let maxValueRecorded = 0.1;
 
-    function handleD3Data(e) {
-        console.log("handleD3Data in AudioGraph");
-        /* With the data, we want to split it, and call LogToNum for each line to get each point.
-         * Then, add each point to graphArray. Each "e" has the entire d3 data list.
-         * Maybe do something about speed? multiply interval by it to match?
-         */
-        
-
-        let temp = e.detail;
-
-        testArray.push( Math.floor( Math.random() * 4 ) );
-        if (testArray.length > maxItems) { testArray.shift() }
-        //console.log("testArray : " + testArray);
-
-        setGraphArray(testArray);
-        //setGraphArray( testArray );
+    const clearD3Data = () => {
+        setGraphArray([]);
+        maxValue = 0.1;
     }
 
     useEffect(() => {
-        if (!hasRun.current) {
-            console.log("first load");
-            document.addEventListener("d3Data", handleD3Data);
-            hasRun.current = true;
+        const handleD3Data = (e) => {
+            const value = Number(e.detail.combined);
+            setGraphArray(prevArray => {
+                const newArray = [...prevArray, value];
+                if (newArray.length > maxItems) {
+                    newArray.shift();
+                }
+                return newArray;
+            });
+            maxValue = ((maxValue < value) ? (value*3) : maxValue);
+        };
+
+        // preventing memory leaks by removing after
+        document.addEventListener("d3DataHap", handleD3Data);
+        document.addEventListener("clearD3Data", clearD3Data)
+        return () => {
+            document.removeEventListener("d3DataHap", handleD3Data);
+            document.removeEventListener("clearD3Data", clearD3Data);
         }
-    })
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setGraphNumber(testArray[0]); // sets next value
-        }, timeOut);
-        return () => clearInterval(interval);
     }, []);
-
-    // adds graphNumber to graphArray, which results in graphNumber being added to displayed points
-    useEffect(() => {
-        let tempArray = [...graphArray, graphNumber];
-        //if (tempArray.length > maxItems) { tempArray.shift() }
-        setGraphArray(tempArray);
-        console.log("graphArray : " + tempArray);
-    }, [graphNumber]);
-
 
     useEffect(() => {
         const svg = d3.select('svg');
         svg.selectAll("*").remove();
 
-        const w = svg.node().getBoundingClientRect().width - 40;
-        const h = svg.node().getBoundingClientRect().height - 25;
+        const w = svg.node().getBoundingClientRect().width;
+        const h = svg.node().getBoundingClientRect().height - 15;
         const barWidth = w / (graphArray.length || 1);
 
         const yScale = d3.scaleLinear()
-            .domain([0, maxValue+2])
+            .domain([0, maxValue])
             .range([h, 0]);
 
         const xScale = d3.scaleLinear()
@@ -153,7 +132,6 @@ export default function AudioGraph() {
 
     return (
         <>
-            
             <svg
                 width="100%"
                 height="100%"
