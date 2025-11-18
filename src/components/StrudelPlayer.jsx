@@ -27,6 +27,9 @@ import { theme } from "@strudel/codemirror";
 let defaultTune = stranger_tune;
 let setupMethods;
 
+/* need to stop edits to processed code not working
+ *
+ */
 
 function StrudelPlayer() {
 
@@ -35,22 +38,9 @@ function StrudelPlayer() {
     const [ activeBtn, setActiveBtn ] = useState(base.DEFAULT_MENU);
     const [ errorText, setErrorText ] = useState("");
 
-    let testArray = [ 1 ];
-
-    // audio_controls
-    // const [ volume, setVolume ] = useState(base.DEFAULT_VOLUME);
-    // const [ cpm, setCPM ] = useState(base.DEFAULT_CPM);
-
-    // // dj_controls
-    // const [ reverb, setReverb ] = useState(base.DEFAULT_REVERB);
-
     const [ visibleEditor, setVisibleEditor ] = useState(0);
 
-    // editor controls
-    // const [ themeDropdown, setThemeDropdown] = useState(base.DEFAULT_THEME); // light is default for maximum effect
-    // const [ codeFontSize, setCodeFontSize ] = useState(base.DEFAULT_FONT_SIZE);
-
-    const { volume, setVolume, cpm, setCPM, 
+    const { volume, setVolume, cpm, setCPM, speed, setSpeed,
         themeDropdown, setThemeDropdown, codeFontSize, 
         setCodeFontSize, reverb, setReverb, strudelData, setStrudelData } = useContext(StrudelContext);
 
@@ -65,17 +55,6 @@ function StrudelPlayer() {
             reverb
         }
     } 
-
-    function handleD3Data(e) {
-        console.log("strudel data being set in StrudelPlayer");
-        // let temp = e.detail;
-        // testArray.push( Math.floor( Math.random() * 10 ) );
-        // if (testArray.length > 100) {
-        //     testArray.shift();
-        // }
-        // setStrudelData( testArray );
-        return;
-    }
     
     /** on load the player needs to setup the strudel */
     useEffect((e) => {
@@ -85,12 +64,11 @@ function StrudelPlayer() {
             document.getElementById("consolePanelText").innerText = "";
             console.log("hasRun is false; setting up Strudel");
             hasRun.current = true;
-            strudelRef.StrudelSetup(stranger_tune, setSongText, volume, cpm, reverb );
-            document.addEventListener("d3Data", handleD3Data);
+            strudelRef.StrudelSetup(stranger_tune, setSongText, volume, cpm, reverb, speed );
             strudelRef.setGlobalVolume(volume);
             strudelRef.setGlobalCPM(cpm);
             strudelRef.setGlobalReverb(reverb);
-            
+            strudelRef.setGlobalSpeed(speed);
             
             /* instead of these, it assign this.(...) to the params in StrudelSetup
              * and use processedSettings array to prevent updating b4 process button clicked
@@ -101,17 +79,8 @@ function StrudelPlayer() {
     /** Called upon *every* update. For only very sparing use  */
     useEffect((e) => {
         console.log("update triggered");
-        //console.log("Second useEffect in StrudelPlayer called");
         onHandleFontSize(); // double call wont stop padding from not updating, so this has to be here
-        console.log("strudelRef.testVolume : " + strudelRef.testVolume());
-        // add listener to print logs into console panel
-        //document.getElementById("consolePanelText").addEventListener("useState", onHandleConsolePanel(e));
-        
     });
-
-    const [ showErrText, setShowErrText ] = useState(false) // for later use
-
-    
 
     /** forces the panels to update text according to current settings */
     function onHandleFontSize() {
@@ -119,6 +88,10 @@ function StrudelPlayer() {
         let padding = codeFontSize * 2;
         document.getElementById("editor").style.cssText = `a:display: block; background-color: var(--background); font-size: `+codeFontSize+`px; font-family: monospace;`;
         document.getElementById("proc").style.cssText = `resize: none; font-size: `+codeFontSize+`px;`+`padding-left:`+padding+`px;`;
+    }
+
+    function onHandleSpeed() {
+        strudelRef.setGlobalSpeed(speed);
     }
 
     /** resets both LHS panel (editor and processed text) */
@@ -141,6 +114,7 @@ function StrudelPlayer() {
         strudelRef.setGlobalVolume(base.DEFAULT_VOLUME);
         strudelRef.setGlobalCPM(base.DEFAULT_CPM);
         strudelRef.setGlobalReverb(base.DEFAULT_REVERB);
+        strudelRef.setGlobalSpeed(base.DEFAULT_SPEED);
         document.getElementById("checkbox_1").checked = document.getElementById("checkbox_1").defaultChecked;
         document.getElementById("checkbox_2").checked = document.getElementById("checkbox_2").defaultChecked;
     }
@@ -314,6 +288,8 @@ function StrudelPlayer() {
         let i = 0;
         if (!( data.volume < base.VOLUME_MAX ))            {i++;alertText+=("\n"+i+" : volume ("+data.volume+") > max ("+base.VOLUME_MAX+")"); }
         if (!( data.volume > base.VOLUME_MIN ))            {i++;alertText+=("\n"+i+" : volume ("+data.volume+") < min ("+base.VOLUME_MIN+")"); }
+        if (!( data.speed < Math.max(...base.SPEEDS) ))    {i++;alertText+=("\n"+i+" : speed ("+data.speed+") > max ("+Math.max(...base.SPEEDS)+")"); }
+        if (!( data.speed > Math.min(...base.SPEEDS) ))    {i++;alertText+=("\n"+i+" : speed ("+data.speed+") < min ("+Math.min(...base.SPEEDS)+")"); }
         if (!( data.fontSize < base.FONT_SIZE_SLIDER_MAX )){i++;alertText+=("\n"+i+" : fontSize ("+data.fontSize+") > max ("+base.FONT_SIZE_SLIDER_MAX+")"); }
         if (!( data.fontSize > base.FONT_SIZE_SLIDER_MIN )){i++;alertText+=("\n"+i+" : fontSize ("+data.fontSize+") < min ("+base.FONT_SIZE_SLIDER_MIN+")"); }
         if (!( base.THEMES_LIST.includes(data.theme) ))    {i++;alertText+=("\n"+i+" : no theme"); }
@@ -442,10 +418,13 @@ function StrudelPlayer() {
                                                     setVolume={setVolume}
                                                     cpm={cpm}
                                                     setCPM={setCPM}
+                                                    speed={speed}
+                                                    setSpeed={setSpeed}
 
                                                     onHandleGeneric={onHandleGeneric}
                                                     onHandleVolume={onHandleVolume}
                                                     onHandleCPM={onHandleCPM}
+                                                    onHandleSpeed={onHandleSpeed}
                                                 />
                                             </Accordion.Body>
                                         </Accordion.Item>

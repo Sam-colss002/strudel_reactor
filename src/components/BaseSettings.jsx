@@ -1,23 +1,25 @@
 
-let a = parseFloat(0);
-let b = parseFloat(1);
-let c = parseFloat(0.5);
-let d = parseInt(120);
-let e = "Dark";
-let f = "helpBtn";
-let g = parseInt(14);
-let h = parseInt(6);
-let i = parseInt(40);
-let j = parseInt(1);
-let k = parseFloat(0.01);
-let l = false; // determines whether or not debug theme and various debug functions are included
-let m = true;
-let n = false;
-let o = parseFloat(0.0);
-let p = parseFloat(5.0); // idk what max should be
-let q = parseFloat(0.0);
-let r = parseFloat(0.1);
-let s = ["Debug", "Light", "Dark"];
+const a = parseFloat(0);
+const b = parseFloat(1);
+const c = parseFloat(0.5);
+const d = parseInt(120);
+const e = "Dark";
+const f = "helpBtn";
+const g = parseInt(14);
+const h = parseInt(6);
+const i = parseInt(40);
+const j = parseInt(1);
+const k = parseFloat(0.01);
+const l = false; // determines whether or not debug theme and various debug functions are included
+const m = true;
+const n = false;
+const o = parseFloat(0.0);
+const p = parseFloat(5.0); // idk what max should be
+const q = parseFloat(0.0);
+const r = parseFloat(0.1);
+const s = ["Debug", "Light", "Dark"];
+const t = parseFloat(1.0);
+const u = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0]
 
 const base = {
     VOLUME_MIN: a,
@@ -35,12 +37,13 @@ const base = {
     // replace these with whatever the checkboxes are actually used for later
     CHECKBOX_1: m,
     CHECKBOX_2: n,
-
     REVERB_MIN: o,
     REVERB_MAX: p,
     DEFAULT_REVERB: q,
     REVERB_SLIDER_STEP: r,
-    THEMES_LIST: s
+    THEMES_LIST: s,
+    DEFAULT_SPEED: t,
+    SPEEDS: u
 };
 
 export default base;

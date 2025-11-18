@@ -1,10 +1,11 @@
 
 import CPMInput from "./CPMInput";
 import VolumeSlider from "./VolumeSlider";
+import SpeedDropdown from "./SpeedDropdown";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
-export function AudioControls({ volume, setVolume, cpm, setCPM, onHandleGeneric, onHandleVolume, onHandleCPM }) {
+export function AudioControls({ volume, setVolume, cpm, setCPM, speed, setSpeed, onHandleGeneric, onHandleVolume, onHandleCPM, onHandleSpeed }) {
     return (
         <>
             <div className="audio-controls bg-foreground" onChange={onHandleGeneric}>
@@ -13,7 +14,8 @@ export function AudioControls({ volume, setVolume, cpm, setCPM, onHandleGeneric,
                 <CPMInput cpm={cpm} setCPM={setCPM} onHandleCPM={onHandleCPM} />
                 <br/>
                 <VolumeSlider volume={volume} setVolume={setVolume} onHandleVolume={onHandleVolume} />
-                
+                <br/>
+                <SpeedDropdown speed={speed} setSpeed={setSpeed} onHandleSpeed={onHandleSpeed} />
             </div>
         </>
     )

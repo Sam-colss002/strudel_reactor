@@ -18,6 +18,7 @@ export default function App() {
     // audio_controls
     const [ volume, setVolume ] = useState(base.DEFAULT_VOLUME);
     const [ cpm, setCPM ] = useState(base.DEFAULT_CPM);
+    const [ speed, setSpeed ] = useState(base.DEFAULT_SPEED);
     const [ strudelData, setStrudelData ] = useState([]);
     
     // editor controls
@@ -33,6 +34,8 @@ export default function App() {
             setVolume,
             cpm,
             setCPM,
+            speed,
+            setSpeed,
             themeDropdown,
             setThemeDropdown,
             codeFontSize,
@@ -44,7 +47,7 @@ export default function App() {
             //log: (t) => console.log(t)
         }
         // in order for things to be updated properly, these need to be returned
-    }, [volume, cpm, reverb, themeDropdown, codeFontSize, strudelData, setStrudelData ]);
+    }, [volume, cpm, reverb, speed, themeDropdown, codeFontSize, strudelData, setStrudelData ]);
         //const [strudelState, setStrudelState] = useState(state);
 
     return (

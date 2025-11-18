@@ -25,7 +25,7 @@ export class StrudelSetupClass{
         this.volume = volume;
         this.cpm = cpm;
         this.reverb = reverb;
-        this.speed = 1;
+        this.speed = speed;
         this.oldProcText = null;
     }
 
@@ -50,8 +50,8 @@ export class StrudelSetupClass{
         }
     };
 
-    StrudelSetup( stranger_tune, setSongText, volume, cpm, reverb ) {
-        processedSettings = [volume, cpm, reverb];
+    StrudelSetup( stranger_tune, setSongText, volume, cpm, reverb, speed ) {
+        processedSettings = [volume, cpm, reverb, speed];
 
             console_monkey_patch();
             //hasRun.current = true;
@@ -117,6 +117,11 @@ export class StrudelSetupClass{
         this.reverb = parseFloat(value);
     }
 
+    setGlobalSpeed = (value) => {
+        //console.log("setting bigReverb to : " + parseFloat(value));
+        this.speed = parseFloat(value);
+    }
+
     handlePlay = () => {
         console.log("Playing Strudel");
         document.dispatchEvent(new CustomEvent("clearD3Data", { detail: "a" }));
@@ -125,15 +130,14 @@ export class StrudelSetupClass{
             let volumeToUse = parseFloat(processedSettings[0]);
             let cpmToUse = parseInt(processedSettings[1]);
             let reverbToUse = parseFloat(processedSettings[2]);
-            let speedToUse = parseFloat(this.speed);
-            console.log("playing with (Vol|CPM|Rev) : " + "("+processedSettings[0]+"|"+processedSettings[1]+"|"+processedSettings[2]+")");
+            let speedToUse = parseFloat(processedSettings[3]);
 
             // adds settings to code for use, then removes them to keep them hidden from user
             if (this.oldProcText) {
                 strudelEditor.setCode((
                     procText + "\n" + 
                     "all(x => x.log())" + "\n" + 
-                    "setcpm("+cpmToUse/4*speedToUse+")"+"\n" + 
+                    "setcpm("+cpmToUse/4*(speedToUse ?? 1)+")"+"\n" + 
                     "all(x => x.dry("+volumeToUse+").room("+reverbToUse+"));"+"\n"));
                 strudelEditor.evaluate();
                 strudelEditor.setCode(this.oldProcText);
@@ -148,7 +152,7 @@ export class StrudelSetupClass{
                 
                 strudelEditor.setCode(
                     procText + "\n" + 
-                    "setcpm("+cpmToUse/4*speedToUse+")"+"\n" + 
+                    "setcpm("+cpmToUse/4*(speedToUse ?? 1)+")"+"\n" + 
                     "all(x => x.dry("+volumeToUse+").room("+reverbToUse+"));"+"\n");
                 if (!strudelEditor.repl?.state?.started) {
                     strudelEditor.stop();
@@ -192,6 +196,8 @@ export class StrudelSetupClass{
             let cpmToUse = parseInt(this.cpm);
             let reverbToUse = parseFloat(this.reverb);
             let speedToUse = parseFloat(this.speed);
+
+            console.log("speedToUse : " + speedToUse);
             // "all(x => x.gain("+volumeToUse+").room("+reverbToUse+"));"+"\n")
             // 0:."+volumeToUse+"
             // "<0 2 3 10:.5>"
@@ -199,7 +205,7 @@ export class StrudelSetupClass{
             strudelEditor.setCode((
                 procText + "\n" + 
                     "all(x => x.log())" + "\n" + 
-                    "setcpm("+cpmToUse/4*speedToUse+")"+"\n" + 
+                    "setcpm("+cpmToUse/4+")"+"\n" + 
                     "all(x => x.dry("+volumeToUse+").room("+reverbToUse+"));"+"\n"));
             strudelEditor.evaluate();
             // strudelEditor.setCode((
