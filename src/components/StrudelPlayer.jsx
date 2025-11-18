@@ -378,10 +378,14 @@ function StrudelPlayer() {
                 <div className="body-left">
                     
                     <div className="menuNavBar row">
-                        <div className="menuBtns btn-group col" role="group" id="editorViewBtn" aria-label="Menu buttons">
-                            <button className="btn btn-unselected menuBtn" onClick={(e) => {
+                        <div className="menuBtns btn-group col" role="group" id="editorViewBtnBar" aria-label="Menu buttons">
+                            <span className="btn headerLabel" id="editorViewLabel">Viewing</span>
+                            <button className="btn btn-unselected menuBtn " id="editorViewBtn" onClick={(e) => {
                                 setVisibleEditor((visibleEditor === 1) ? 0 : 1); }}>{(visibleEditor == 0) ? "Preprocessed Code" : "Processed Code"}
                             </button>
+                        </div>
+                        <div className="headerLabel col">
+
                         </div>
                     </div>
 

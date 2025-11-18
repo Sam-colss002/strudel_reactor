@@ -183,6 +183,15 @@ html, body {
   border-color: var(--tertiaryColour) !important;
 }
 
+.headerLabel {
+  text-align: left !important;
+  color: var(--quaternaryColour) !important;
+  background-color: var(--tertiaryColour) !important;
+  border-color: var(--tertiaryColour) !important;
+  pointer-events: none;
+  max-width:16vh;
+}
+
 .menuRoot {
   background-color: pink !important;
   
@@ -296,9 +305,27 @@ html, body {
   vertical-align: top !important;
 }
 
-.menuBtns.btn-group#editorViewBtn {
+.menuBtns.btn-group#editorViewBtnBar {
   background-color: var(--tertiaryColour) !important;
 }
+
+#editorViewLabel {
+  background-color: var(--tertiaryColour) !important;
+  max-width: 12vh !important;
+  text-align: left !important;
+}
+
+#editorViewBtn {
+  border-color: var(--primaryColour) !important;
+  background-color: var(--primaryColour) !important;
+  text-align: left !important;
+}
+
+#editorViewBtn:hover {
+  border-color: var(--tertiaryColour) !important;
+  background-color: var(--tertiaryColour) !important;
+}
+
 
 .menuJustTextBox {
   padding-left:3vh;
