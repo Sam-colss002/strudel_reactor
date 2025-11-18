@@ -1,13 +1,9 @@
 # readme.md
 
-stuff
-features: 
-- volume slider
-- cpm input
-- editor control/settings: themes, font size
-- 
-
 # Features
+- Menu panel *accordions*, *dropdowns* for various settings, *sliders* for volume and reverb, *nav bars* for menu navigation,
+a *graph* for displaying the playing song's gain, quality of life features such as light/dark mode and font size, *volume* control,
+*reverb, cpm, speed* controls, *badges* to keep user aware of changes made, and the ability to *load and import JSON* settings.
 
 # Quirks & Usage Guidelines
 - ### Editor View
@@ -18,10 +14,14 @@ To *edit the song*, please use the unprocessed code box. This allows you to run 
 To ensure changes are processed, use the *process* or *proc&play* buttons in the top right. You can see if a song and or setting changes are
 not yet processed if there is a "modified" badge appearing on the "controls" menu button.
 
+- ### The Graph
+The graph measures *combined gain*; that is, a combination of `gain`, `postgain` and the variable affected by *volume* and applied afterwards to
+allow for both gain and postgain to be used by the user, `dry`. The graph will increase its maximum Y value to accomdate rising data.
+
 # Controls
 ## Audio Controls
 
-- ### Volumes
+- ### Volume
 Affects the final volume of each instrument; applied after both "gain" and "postgain".
 
 - ### CPM
