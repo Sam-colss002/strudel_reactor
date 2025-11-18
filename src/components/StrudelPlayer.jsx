@@ -166,7 +166,8 @@ function StrudelPlayer() {
             "theme": themeDropdown,
             "checkbox1": document.getElementById("checkbox_1").checked,
             "checkbox2": document.getElementById("checkbox_2").checked,
-            "reverb": reverb
+            "reverb": reverb,
+            "speed": speed
         };
 
         const localeTime = new Date().toLocaleTimeString();
@@ -210,12 +211,12 @@ function StrudelPlayer() {
     function onHandleLoadSettings(settingsJSON) {
         console.log("onHandleLoadSettings called");
         //console.log("settingsJSON:\n" + settingsJSON);
-        const neededKeysList = [ "volume", "cpm", "fontSize", "theme", "checkbox1", "checkbox2", "reverb" ];
+        const neededKeysList = [ "volume", "cpm", "fontSize", "theme", "checkbox1", "checkbox2", "reverb" , "speed" ];
         // d: data; kept short for simplicity sake
         const data = {
             volume:settingsJSON["volume"], cpm:settingsJSON["cpm"], fontSize:settingsJSON["fontSize"], 
             theme:settingsJSON["theme"], checkbox1:settingsJSON["checkbox1"], checkbox2:settingsJSON["checkbox2"], 
-            reverb:settingsJSON["reverb"] };
+            reverb:settingsJSON["reverb"], speed:settingsJSON["speed"] };
         if (data.size !== neededKeysList.size) { console.log("Missmatch in neededKeysList:data comparison!"); }
 
         let validKeys = validateSettingKeys(settingsJSON, neededKeysList);
@@ -229,7 +230,7 @@ function StrudelPlayer() {
         try {
             //setCodeFontSize(settingsJSON["fontSize"]);
             onHandleFontSize();
-            setVolume(settingsJSON["volume"]);
+            setVolume(data.volume);
             setCPM(settingsJSON["cpm"]);
             setThemeDropdown(settingsJSON["theme"]);
             strudelRef.setGlobalVolume(settingsJSON["volume"]);
