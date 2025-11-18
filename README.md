@@ -1,4 +1,4 @@
-### readme.md
+# readme.md
 
 stuff
 features: 
@@ -6,6 +6,11 @@ features:
 - cpm input
 - editor control/settings: themes, font size
 - 
+
+## Controls
+Stuff
+- a
+- b
 
 TODO: clear this
 
