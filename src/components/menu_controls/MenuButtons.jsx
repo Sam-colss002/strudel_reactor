@@ -1,13 +1,13 @@
 import base from '../BaseSettings';
 
-let lastBtnId = base.DEFAULT_MENU;
+let lastBtnId = base.default_menu;
 let targetBtnId = null;
 
 function MenuButtons({ activeBtn, onClick}) {
     let badge;//=<span className="badge text-bg-danger">4</span>;
 
     function isDefault(btnName) {
-        return (btnName === base.DEFAULT_MENU) ? "selected" : "unselected";
+        return (btnName === base.default_menu) ? "selected" : "unselected";
     }
     
     function handleMenuButton(e) {
@@ -34,13 +34,13 @@ function MenuButtons({ activeBtn, onClick}) {
                     handleMenuButton(e);
                     }}>Console{badge}</button>
                     
-                { (base.DEBUG_MODE) ?
+                { (base.debug_mode) ?
                 <button className={`btn btn-${isDefault("placeholderBtn")} menuBtn`} id="unusedBtn2" onClick={(e) => {
                     handleMenuButton(e);
                     }}>Placeholder</button>
                 : null }
 
-                { (base.DEBUG_MODE) ?
+                { (base.debug_mode) ?
                 <button disabled hidden className={`btn btn-${isDefault("placeholderBtn")} menuBtn`} id="unusedBtn" onClick={(e) => {
                     handleMenuButton(e);
                     }}>Placeholder</button>

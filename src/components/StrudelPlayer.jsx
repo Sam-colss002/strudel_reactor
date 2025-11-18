@@ -35,7 +35,7 @@ function StrudelPlayer() {
 
     const hasRun = useRef(false);
     const [ songText, setSongText ] = useState("");
-    const [ activeBtn, setActiveBtn ] = useState(base.DEFAULT_MENU);
+    const [ activeBtn, setActiveBtn ] = useState(base.default_menu);
     const [ errorText, setErrorText ] = useState("");
 
     const [ visibleEditor, setVisibleEditor ] = useState(0);
@@ -105,19 +105,7 @@ function StrudelPlayer() {
     /** will reset controls to default; not the loaded settings */
     function onHandleResetControls() {
         console.log("Resetting controls");
-        setCodeFontSize(base.DEFAULT_FONT_SIZE);
-        onHandleFontSize();
-        setVolume(base.DEFAULT_VOLUME);
-        setCPM(base.DEFAULT_CPM);
-        setReverb(base.DEFAULT_REVERB);
-        setSpeed(base.DEFAULT_SPEED);
-        setThemeDropdown(base.DEFAULT_THEME);
-        strudelRef.setGlobalVolume(base.DEFAULT_VOLUME);
-        strudelRef.setGlobalCPM(base.DEFAULT_CPM);
-        strudelRef.setGlobalReverb(base.DEFAULT_REVERB);
-        strudelRef.setGlobalSpeed(base.DEFAULT_SPEED);
-        document.getElementById("checkbox_1").checked = document.getElementById("checkbox_1").defaultChecked;
-        document.getElementById("checkbox_2").checked = document.getElementById("checkbox_2").defaultChecked;
+        mapDataToSettings(base);
     }
 
     // currently unused, and can be messy if used
@@ -162,16 +150,15 @@ function StrudelPlayer() {
         let exportJSON = {
             "volume": volume,
             "cpm": cpm,
-            "fontSize": codeFontSize,
-            "theme": themeDropdown,
+            "codeFontSize": codeFontSize,
+            "themeDropdown": themeDropdown,
             "checkbox1": document.getElementById("checkbox_1").checked,
             "checkbox2": document.getElementById("checkbox_2").checked,
             "reverb": reverb,
             "speed": speed
         };
 
-        const localeTime = new Date().toLocaleTimeString();
-        let fileName = "Strudel_Settings_"+localeTime;
+        let fileName = "Strudel_Settings_"+(new Date().toLocaleTimeString());
         const blob = new Blob([JSON.stringify(exportJSON, null, 2)], { type: 'application/json' });
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -207,15 +194,37 @@ function StrudelPlayer() {
         reader.readAsText(file);
     }
 
+    /** Called whenever mass setting changes are required (e.g., on import, reset)  */
+    function mapDataToSettings(data) {
+        if (!data) {
+            console.log("mapDataToSettings received an invalid data object!");
+            return;
+        }
+        onHandleFontSize();
+        setCodeFontSize(data.codeFontSize);
+        setVolume(data.volume);
+        setCPM(data.cpm);
+        setThemeDropdown(data.themeDropdown);
+        setSpeed(data.speed);
+        setReverb(data.reverb);
+        strudelRef.setGlobalVolume(data.volume);
+        strudelRef.setGlobalCPM(data.cpm);
+        strudelRef.setGlobalReverb(data.reverb);
+        strudelRef.setGlobalSpeed(data.speed);
+        if (base.debug_mode) {
+            document.getElementById("checkbox_1").checked = data.checkbox1;
+            document.getElementById("checkbox_2").checked = data.checkbox2;
+        }
+    }
+
     /** Called upon successful file import; checks for required keys in settings config file, and that values are within bounds.  */
     function onHandleLoadSettings(settingsJSON) {
         console.log("onHandleLoadSettings called");
         //console.log("settingsJSON:\n" + settingsJSON);
-        const neededKeysList = [ "volume", "cpm", "fontSize", "theme", "checkbox1", "checkbox2", "reverb" , "speed" ];
-        // d: data; kept short for simplicity sake
+        const neededKeysList = [ "volume", "cpm", "codeFontSize", "themeDropdown", "checkbox1", "checkbox2", "reverb" , "speed" ];
         const data = {
-            volume:settingsJSON["volume"], cpm:settingsJSON["cpm"], fontSize:settingsJSON["fontSize"], 
-            theme:settingsJSON["theme"], checkbox1:settingsJSON["checkbox1"], checkbox2:settingsJSON["checkbox2"], 
+            volume:settingsJSON["volume"], cpm:settingsJSON["cpm"], codeFontSize:settingsJSON["codeFontSize"], 
+            themeDropdown:settingsJSON["themeDropdown"], checkbox1:settingsJSON["checkbox1"], checkbox2:settingsJSON["checkbox2"], 
             reverb:settingsJSON["reverb"], speed:settingsJSON["speed"] };
         if (data.size !== neededKeysList.size) { console.log("Missmatch in neededKeysList:data comparison!"); }
 
@@ -228,21 +237,8 @@ function StrudelPlayer() {
         console.log("Loaded JSON data keys are valid and the corresponding data values are within acceptable limits.");
 
         try {
-            //setCodeFontSize(settingsJSON["fontSize"]);
-            onHandleFontSize();
-            setVolume(data.volume);
-            setCPM(settingsJSON["cpm"]);
-            setThemeDropdown(settingsJSON["theme"]);
-            strudelRef.setGlobalVolume(settingsJSON["volume"]);
-            strudelRef.setGlobalCPM(settingsJSON["cpm"]);
-            setReverb(settingsJSON["reverb"]);
-            strudelRef.setGlobalReverb(settingsJSON["cpm"]);
-            setSpeed(settingsJSON["speed"]);
-            strudelRef.setGlobalSpeed(settingsJSON["speed"]);
-            if (base.DEBUG_MODE) {
-                document.getElementById("checkbox_1").checked = settingsJSON["checkbox1"];
-                document.getElementById("checkbox_2").checked = settingsJSON["checkbox2"];
-            }
+            mapDataToSettings(data);
+            
         } catch (e) {
             console.log("Somehow failed the try-catch to load settings...?");
         }
@@ -290,17 +286,17 @@ function StrudelPlayer() {
         console.log("Verifying key-values are within bounds...");
         let alertText = "Imported file contains invalid data.";
         let i = 0;
-        if (!( data.volume < base.VOLUME_MAX ))            {i++;alertText+=("\n"+i+" : volume ("+data.volume+") > max ("+base.VOLUME_MAX+")"); }
-        if (!( data.volume > base.VOLUME_MIN ))            {i++;alertText+=("\n"+i+" : volume ("+data.volume+") < min ("+base.VOLUME_MIN+")"); }
-        if (!( data.speed < Math.max(...base.SPEEDS) ))    {i++;alertText+=("\n"+i+" : speed ("+data.speed+") > max ("+Math.max(...base.SPEEDS)+")"); }
-        if (!( data.speed > Math.min(...base.SPEEDS) ))    {i++;alertText+=("\n"+i+" : speed ("+data.speed+") < min ("+Math.min(...base.SPEEDS)+")"); }
-        if (!( data.fontSize < base.FONT_SIZE_SLIDER_MAX )){i++;alertText+=("\n"+i+" : fontSize ("+data.fontSize+") > max ("+base.FONT_SIZE_SLIDER_MAX+")"); }
-        if (!( data.fontSize > base.FONT_SIZE_SLIDER_MIN )){i++;alertText+=("\n"+i+" : fontSize ("+data.fontSize+") < min ("+base.FONT_SIZE_SLIDER_MIN+")"); }
-        if (!( base.THEMES_LIST.includes(data.theme) ))    {i++;alertText+=("\n"+i+" : no theme"); }
-        if (!( [true, false].includes(data.checkbox1) ))   {i++;alertText+=("\n"+i+" : no checkbox1 value"); }
-        if (!( [true, false].includes(data.checkbox2) ))   {i++;alertText+=("\n"+i+" : no checkbox2 value"); }
-        if (!( data.reverb < base.REVERB_MAX ))            {i++;alertText+=("\n"+i+" : reverb ("+data.reverb+") > max ("+base.REVERB_MAX+")"); }
-        if (!( data.reverb >= base.REVERB_MIN ))           {i++;alertText+=("\n"+i+" : reverb ("+data.reverb+") < min ("+base.REVERB_MIN+")"); }
+        if (!( data.volume < base.volume_max ))                {i++;alertText+=("\n"+i+" : volume ("+data.volume+") > max ("+base.volume_max+")"); }
+        if (!( data.volume > base.volume_min ))                {i++;alertText+=("\n"+i+" : volume ("+data.volume+") < min ("+base.volume_min+")"); }
+        if (!( data.speed < Math.max(...base.speeds) ))        {i++;alertText+=("\n"+i+" : speed ("+data.speed+") > max ("+Math.max(...base.speeds)+")"); }
+        if (!( data.speed > Math.min(...base.speeds) ))        {i++;alertText+=("\n"+i+" : speed ("+data.speed+") < min ("+Math.min(...base.speeds)+")"); }
+        if (!( data.codeFontSize < base.font_size_slider_max )){i++;alertText+=("\n"+i+" : codeFontSize ("+data.codeFontSize+") > max ("+base.font_size_slider_max+")"); }
+        if (!( data.codeFontSize > base.font_size_slider_min )){i++;alertText+=("\n"+i+" : codeFontSize ("+data.codeFontSize+") < min ("+base.font_size_slider_min+")"); }
+        if (!( base.themes_list.includes(data.themeDropdown) )){i++;alertText+=("\n"+i+" : no theme"); }
+        if (!( [true, false].includes(data.checkbox1) ))       {i++;alertText+=("\n"+i+" : no checkbox1 value"); }
+        if (!( [true, false].includes(data.checkbox2) ))       {i++;alertText+=("\n"+i+" : no checkbox2 value"); }
+        if (!( data.reverb < base.reverb_max ))                {i++;alertText+=("\n"+i+" : reverb ("+data.reverb+") > max ("+base.reverb_max+")"); }
+        if (!( data.reverb >= base.reverb_min ))               {i++;alertText+=("\n"+i+" : reverb ("+data.reverb+") < min ("+base.reverb_min+")"); }
         if (i != 0) { alert(alertText); }
         return (i != 0 ? false : true);
     }

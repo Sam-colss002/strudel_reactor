@@ -2,7 +2,7 @@ import base from '../BaseSettings';
 import { useEffect} from 'react';
 
 function SpeedDropdown ({ speed, setSpeed}) {
-    const speeds = base.SPEEDS;
+    const speeds = base.speeds;
 
     // const appendOptions = () => {
     //     try {

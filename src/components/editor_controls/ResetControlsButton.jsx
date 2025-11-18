@@ -1,5 +1,5 @@
 
-function ResetControlsButton ({ onHandleResetControls}) {
+function ResetControlsButton ({ onHandleResetControls }) {
     return (
         <>
             <div className="container">
