@@ -115,7 +115,7 @@ export class StrudelSetupClass{
                 });
             
             setSongText(stranger_tune);
-        //this.Proc(); // welcome back, Proc()   lol
+        this.Proc(); // welcome back, Proc()   lol
     }
 
     handlePlay = () => {

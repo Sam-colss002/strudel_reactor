@@ -379,12 +379,6 @@ html, body {
   overflow-y:scroll;
 }
 
-
-/* .processedCodePanel, .unprocessedTextPanel {
-  margin-top: 1vh;
-  margin-bottom: 1vh;
-} */
-
 #menuBtns {
   background-color: var(--tertiaryColour) !important;
 }
@@ -553,10 +547,6 @@ html, body {
 
 .badge {
   pointer-events: none; /* removes ability to click on badges, users click goes thru to the button below */
-}
-
-#editor, #proc, .processedCodePanel {
-  /* caret-color: red !important; */
 }
 
 .cm-line::selection, .cm-content::selection, .textarea::selection {

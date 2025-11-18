@@ -347,7 +347,7 @@ function StrudelPlayer() {
                                 <PreprocessTextArea songText={songText} setSongText={setSongText} />
                             </div>
                             <div className="processedCodePanel" id="codePanel"
-                            style={{ display: (visibleEditor === 1 ) ? 'block' : 'none' }}>
+                            style={{ display: (visibleEditor === 1 ) ? 'block' : 'none'}}>
                                 <div className="editor" id="editor"/>
                                 
                             </div>
