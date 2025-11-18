@@ -9,15 +9,12 @@ import { registerSoundfonts } from '@strudel/soundfonts';
 import { stranger_tune } from '../tunes';
 import console_monkey_patch from '../console-monkey-patch';
 import * as d3 from 'd3';
-
+import { StrudelContext } from "../App";
 
 let strudelEditor = null;
-let processedSettings = [null, null, null];
+let processedSettings = [null, null, null, null];
+let isModified = false;
 
-const handleD3DataUnused = (event) => {
-    // console.log("handleD3Data is using setStrudelData");
-    // setStrudelData(event.detail);
-};
 
 /**  */
 export class StrudelSetupClass{
@@ -29,12 +26,29 @@ export class StrudelSetupClass{
         this.oldProcText = null;
     }
 
-    testVolume() {
-        return this.volume;
+    printProcAndNonProc() {
+        console.log("class values:\n"+
+            "volume:"+this.volume+"\n"+
+            "cpm:"+this.cpm+"\n"+
+            "reverb:"+this.reverb+"\n"+
+            "speed:"+this.speed+"\n"+
+            "isModifiedCheck:"+isModified+"\n"+
+            "processedSettings:"+processedSettings
+        )
     }
 
+    getIsModified() {
+        return isModified;
+    }
+
+    setIsModified(bool) {
+        console.log("uhh... hello?");
+        isModified = bool;
+        return isModified;
+    }
+    
+
     Proc = () => {
-        console.log("aaaaa : " + this.volume);
         let procText = document.getElementById("proc").value;
         this.oldProcText = document.getElementById("proc").value;
         if (!procText || !strudelEditor) {
@@ -47,7 +61,10 @@ export class StrudelSetupClass{
             let speedToUse = parseFloat(this.speed);
             processedSettings = [this.volume, this.cpm, this.reverb, this.speed];
             strudelEditor.setCode(procText);
+            
         }
+        isModified = false;
+        this.printProcAndNonProc();
     };
 
     StrudelSetup( stranger_tune, setSongText, volume, cpm, reverb, speed ) {
@@ -101,23 +118,31 @@ export class StrudelSetupClass{
         //this.Proc(); // welcome back, Proc()   lol
     }
 
-    // TODO: we're using global values here...
+    // TODO: we're using global values here... UPDATE: quarantined with log & return statements to observe changes
     setGlobalVolume = (value) => {
+        console.log("setGlobalVolume should not be used!");
+        return;
         //console.log("setting bigVolume to : " + parseFloat(value));
         this.volume = value;
     }
 
     setGlobalCPM = (value) => {
+        console.log("setGlobalCPM should not be used!");
+        return;
         //console.log("setting bigCPM to : " + parseInt(value));
         this.cpm = parseInt(value);
     }
 
     setGlobalReverb = (value) => {
+        console.log("setGlobalReverb should not be used!");
+        return;
         //console.log("setting bigReverb to : " + parseFloat(value));
         this.reverb = parseFloat(value);
     }
 
     setGlobalSpeed = (value) => {
+        console.log("setGlobalSpeed should not be used!");
+        return;
         //console.log("setting bigReverb to : " + parseFloat(value));
         this.speed = parseFloat(value);
     }

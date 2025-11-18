@@ -1,11 +1,17 @@
 
-function ProcButtons( { onProc, onProcPlay } ) {
+function ProcButtons( { onProc, onProcPlay, handleModifyBadge } ) {
     return (
         <>
             <div className="btn-group " role="group" aria-label="Process buttons">
                 
-                <button id="process" className="btn btn-group headerButtons" onClick={onProc}>Process</button>
-                <button id="process_play" className="btn btn-group headerButtons" onClick={onProcPlay}>Proc & Play</button>
+                <button id="process" className="btn btn-group headerButtons" onClick={(e) => {
+                    onProc();
+                    handleModifyBadge();
+                }}>Process</button>
+                <button id="process_play" className="btn btn-group headerButtons" onClick={(e) => {
+                    onProcPlay();
+                    handleModifyBadge();
+                }}>Proc & Play</button>
             </div>
         </>
     )

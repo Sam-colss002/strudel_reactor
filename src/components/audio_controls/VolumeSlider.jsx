@@ -7,7 +7,7 @@ function VolumeSlider({ volume, setVolume, onHandleVolume }) {
             <input type="range" className="col-lg menu_label_value_full slider" min={base.volume_min} max={base.volume_max} 
             value={volume} id="volume_range" step={base.volume_slider_step} onChange={(e) => {
                 setVolume(e.target.value);
-                onHandleVolume(e);
+                onHandleVolume();
             }}/>
             <span className="input-group-text menu_label_subject_minor" id="volume_label">{(volume*100).toFixed(0)}%</span>
         </div>

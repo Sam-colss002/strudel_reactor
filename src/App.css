@@ -104,6 +104,12 @@ html, body {
   border-color: var(--primaryColour) !important;
 }
 
+.badge {
+  color: var(--unSelectedMenuButtonTextColor) !important;
+  background-color: var(--primaryColour) !important;
+  border-color: var(--primaryColour) !important;
+}
+
 
 /* right panel foreground, essentially */
 .bg-foreground, .btn-group, .menu-panel, .row, .input-group, #rightPanel, #leftBottomPanel {

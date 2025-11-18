@@ -20,7 +20,8 @@ export default function App() {
     const [ cpm, setCPM ] = useState(base.cpm);
     const [ speed, setSpeed ] = useState(base.speed);
     const [ strudelData, setStrudelData ] = useState([]);
-    
+    const [ isModified, setIsModified ] = useState(false);
+
     // editor controls
     const [ themeDropdown, setThemeDropdown] = useState(base.themeDropdown); // light is default for maximum effect
     const [ codeFontSize, setCodeFontSize ] = useState(base.codeFontSize);
@@ -43,11 +44,13 @@ export default function App() {
             reverb,
             setReverb,
             strudelData,
-            setStrudelData
+            setStrudelData,
+            isModified,
+            setIsModified
             //log: (t) => console.log(t)
         }
         // in order for things to be updated properly, these need to be returned
-    }, [volume, cpm, reverb, speed, themeDropdown, codeFontSize, strudelData, setStrudelData ]);
+    }, [volume, cpm, reverb, speed, themeDropdown, codeFontSize, strudelData, setStrudelData, isModified, setIsModified ]);
         //const [strudelState, setStrudelState] = useState(state);
 
     return (

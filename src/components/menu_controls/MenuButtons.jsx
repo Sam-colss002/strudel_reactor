@@ -3,8 +3,9 @@ import base from '../BaseSettings';
 let lastBtnId = base.default_menu;
 let targetBtnId = null;
 
-function MenuButtons({ activeBtn, onClick}) {
-    let badge;//=<span className="badge text-bg-danger">4</span>;
+function MenuButtons({ activeBtn, onClick, isModified }) {
+    let modifiedBadge = <span className="badge badge-secondary">modified</span>
+    let badge;// =<span className="badge text-bg-danger">4</span>;
 
     function isDefault(btnName) {
         return (btnName === base.default_menu) ? "selected" : "unselected";
@@ -28,7 +29,7 @@ function MenuButtons({ activeBtn, onClick}) {
 
                 <button className={`btn btn-${isDefault("controlBtn")} menuBtn`} id="controlBtn" onClick={(e) => {
                     handleMenuButton(e);
-                    }}>Controls</button>
+                    }}>Controls {(isModified) ? modifiedBadge : null}</button>
 
                 <button className={`btn btn-${isDefault("consoleBtn")} menuBtn`} id="consoleBtn" onClick={(e) => {
                     handleMenuButton(e);

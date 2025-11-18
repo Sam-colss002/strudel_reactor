@@ -8,7 +8,7 @@ function CPMInput({ cpm, setCPM, onHandleCPM }) {
             placeholder={base.cpm} min="0"
             aria-label="cpm" aria-describedby="cpm_label menu_label_value" value={cpm} onChange={(e) => {
                 setCPM(e.target.value);
-                onHandleCPM(e);
+                onHandleCPM();
             }} />
         </div>
     )

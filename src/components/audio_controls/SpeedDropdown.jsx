@@ -1,7 +1,7 @@
 import base from '../BaseSettings';
 import { useEffect} from 'react';
 
-function SpeedDropdown ({ speed, setSpeed}) {
+function SpeedDropdown ({ speed, setSpeed, onHandleSpeed }) {
     const speeds = base.speeds;
 
     // const appendOptions = () => {
@@ -32,7 +32,9 @@ function SpeedDropdown ({ speed, setSpeed}) {
                     <ul className="dropdown-menu" onClick={(e) => {
                         if (e.target.id !== ""){
                             //speed = e.target.name;
-                            setSpeed(e.target.name);
+                            //console.log("b4 setSpeed, e.target.name is : " + e.target.name);
+                            setSpeed(Number(e.target.name));
+                            onHandleSpeed();
                         }
                     }}>
                         {/* <li><h6 class="dropdown-header">Dropdown explanation here</h6></li> */}

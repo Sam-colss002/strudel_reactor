@@ -37,14 +37,15 @@ function StrudelPlayer() {
     const [ songText, setSongText ] = useState("");
     const [ activeBtn, setActiveBtn ] = useState(base.default_menu);
     const [ errorText, setErrorText ] = useState("");
+    
 
     const [ visibleEditor, setVisibleEditor ] = useState(0);
 
     const { volume, setVolume, cpm, setCPM, speed, setSpeed,
         themeDropdown, setThemeDropdown, codeFontSize, 
-        setCodeFontSize, reverb, setReverb, strudelData, setStrudelData } = useContext(StrudelContext);
+        setCodeFontSize, reverb, setReverb, strudelData, setStrudelData, isModified, setIsModified } = useContext(StrudelContext);
 
-    let strudelRef = new StrudelSetupClass(stranger_tune, setSongText, volume, cpm, reverb );
+    let strudelRef = new StrudelSetupClass(stranger_tune, setSongText, volume, cpm, reverb, speed, false );
 
     // TODO: unused?
     const getSettingValues = ReturnSettingValues();
@@ -59,16 +60,18 @@ function StrudelPlayer() {
     /** on load the player needs to setup the strudel */
     useEffect((e) => {
         if (!hasRun.current) {
-            
             console.log("\nLoading Strudel Player...");
             document.getElementById("consolePanelText").innerText = "";
             console.log("hasRun is false; setting up Strudel");
             hasRun.current = true;
-            strudelRef.StrudelSetup(stranger_tune, setSongText, volume, cpm, reverb, speed );
-            strudelRef.setGlobalVolume(volume);
-            strudelRef.setGlobalCPM(cpm);
-            strudelRef.setGlobalReverb(reverb);
-            strudelRef.setGlobalSpeed(speed);
+            strudelRef.StrudelSetup(stranger_tune, setSongText, volume, cpm, reverb, speed, isModified);
+            // above makes these redundant
+            //strudelRef.volume = volume;
+            //strudelRef.setGlobalVolume(volume);
+            //strudelRef.setGlobalCPM(cpm);
+            //strudelRef.setGlobalReverb(reverb);
+            //strudelRef.setGlobalSpeed(speed);
+            //strudelRef.volume = volume; // use this to replace setGlobal(...) functions
             
             /* instead of these, it assign this.(...) to the params in StrudelSetup
              * and use processedSettings array to prevent updating b4 process button clicked
@@ -77,21 +80,26 @@ function StrudelPlayer() {
     }, [hasRun.current]);
     
     /** Called upon *every* update. For only very sparing use  */
-    useEffect((e) => {
-        console.log("update triggered");
+    useEffect(() => {
+        console.log("update triggered : ");
+        strudelRef.printProcAndNonProc();
+        //strudelRef.setIsModified(isModified);
+        console.log("getIsModified : " + strudelRef.getIsModified());
+        setIsModified(strudelRef.getIsModified());
+        
+        //strudelRef.speed = speed;
+        // strudelRef.setGlobalVolume(volume);
+        // strudelRef.setGlobalCPM(cpm);
+        // strudelRef.setGlobalReverb(reverb);
+        // strudelRef.setGlobalSpeed(speed);
         onHandleFontSize(); // double call wont stop padding from not updating, so this has to be here
     });
 
     /** forces the panels to update text according to current settings */
     function onHandleFontSize() {
-        console.log("a : " + codeFontSize);
         let padding = codeFontSize * 2;
         document.getElementById("editor").style.cssText = `a:display: block; background-color: var(--background); font-size: `+codeFontSize+`px; font-family: monospace;`;
         document.getElementById("proc").style.cssText = `resize: none; font-size: `+codeFontSize+`px;`+`padding-left:`+padding+`px;`;
-    }
-
-    function onHandleSpeed() {
-        strudelRef.setGlobalSpeed(speed);
     }
 
     /** resets both LHS panel (editor and processed text) */
@@ -108,40 +116,51 @@ function StrudelPlayer() {
         mapDataToSettings(base);
     }
 
-    // currently unused, and can be messy if used
-    const onHandleGeneric = (e) => {
-        //console.log("\nSTOP CALLING onHandleGeneric!!");
-        return;
-        let idString = e.target.id;
-        // debug prints
-        if (idString.startsWith("dropdown_")) {
-            console.log("onHandleChangeRequest called in StrudelPlayer - " + e.target.id + " : " + document.getElementById(e.target.id).innerHTML);
-        } else if (idString.startsWith("checkbox_")) {
-            console.log("onHandleChangeRequest called in StrudelPlayer - " + e.target.id + " : " + e.target.checked);
-        }  else {
-            console.log("onHandleChangeRequest called in StrudelPlayer - " + e.target.id + " : " + e.target.value);
-            if (idString.startsWith("volume")) {
-                console.log("volume related change ");
-            }
-        }
+    // // currently unused, and can be messy if used
+    // const onHandleGeneric = (e) => {
+    //     console.log("\nSTOP CALLING onHandleGeneric!!");
+    //     return;
+    //     let idString = e.target.id;
+    //     // debug prints
+    //     if (idString.startsWith("dropdown_")) {
+    //         console.log("onHandleChangeRequest called in StrudelPlayer - " + e.target.id + " : " + document.getElementById(e.target.id).innerHTML);
+    //     } else if (idString.startsWith("checkbox_")) {
+    //         console.log("onHandleChangeRequest called in StrudelPlayer - " + e.target.id + " : " + e.target.checked);
+    //     }  else {
+    //         console.log("onHandleChangeRequest called in StrudelPlayer - " + e.target.id + " : " + e.target.value);
+    //         if (idString.startsWith("volume")) {
+    //             console.log("volume related change ");
+    //         }
+    //     }
+    // }
+
+    function markAsModified() {
+        setIsModified(true);
+        strudelRef.setIsModified(true);
     }
 
-    const onHandleReverb = (e) => {
-        let newReverb = parseFloat(e.target.value);
-        setReverb(newReverb);
-        strudelRef.setGlobalReverb(newReverb);
+    const onHandleSpeed = () => {
+        console.log("onHandleSpeed called");
+        markAsModified();
+        strudelRef.speed = speed;
     }
 
-    const onHandleVolume = (e) => {
-        //let newVolume = parseFloat(e.target.value);
-        //setVolume(newVolume);
-        strudelRef.setGlobalVolume(volume);
+    const onHandleReverb = () => {
+        console.log("onHandleReverb called");
+        markAsModified();
+        strudelRef.reverb = reverb;
+    }
+
+    const onHandleVolume = () => {
+        console.log("onHandleVolume called");
+        markAsModified();
+        strudelRef.volume = volume;
     };
 
-    const onHandleCPM = (e) => {
-        let newCPM = parseFloat(e.target.value);
-        setCPM(newCPM);
-        strudelRef.setGlobalCPM(newCPM);
+    const onHandleCPM = () => {
+        console.log("onHandleCPM called");
+        markAsModified();
+        strudelRef.cpm = cpm;
     };
 
     /** creates JSON-valid data to save as a JSON file */
@@ -196,6 +215,7 @@ function StrudelPlayer() {
 
     /** Called whenever mass setting changes are required (e.g., on import, reset)  */
     function mapDataToSettings(data) {
+        console.log("mapDataToSettings called");
         if (!data) {
             console.log("mapDataToSettings received an invalid data object!");
             return;
@@ -207,14 +227,19 @@ function StrudelPlayer() {
         setThemeDropdown(data.themeDropdown);
         setSpeed(data.speed);
         setReverb(data.reverb);
-        strudelRef.setGlobalVolume(data.volume);
-        strudelRef.setGlobalCPM(data.cpm);
-        strudelRef.setGlobalReverb(data.reverb);
-        strudelRef.setGlobalSpeed(data.speed);
+        strudelRef.volume = data.volume;
+        strudelRef.cpm = data.cpm;
+        strudelRef.reverb = data.reverb;
+        strudelRef.speed = data.speed;
+        //strudelRef.setGlobalVolume(data.volume);
+        //strudelRef.setGlobalCPM(data.cpm);
+        //strudelRef.setGlobalReverb(data.reverb);
+        //strudelRef.setGlobalSpeed(data.speed);
         if (base.debug_mode) {
             document.getElementById("checkbox_1").checked = data.checkbox1;
             document.getElementById("checkbox_2").checked = data.checkbox2;
         }
+        markAsModified();
     }
 
     /** Called upon successful file import; checks for required keys in settings config file, and that values are within bounds.  */
@@ -332,6 +357,11 @@ function StrudelPlayer() {
     //     })
     // }
 
+    // expanded upon as I need to remove badge on click
+    function handleModifyBadge() {
+        setIsModified(strudelRef.getIsModified());
+    }
+
 
     return (
         <main data-theme={themeDropdown}>
@@ -340,7 +370,7 @@ function StrudelPlayer() {
                 <div className="h2 b">Strudel Demo</div>
                 <div className="playButtons">
                     <PlayButtons onPlay={strudelRef.handlePlay} onStop={strudelRef.handleStop} />
-                    <ProcButtons onProc={strudelRef.handleProc} onProcPlay={strudelRef.handleProcPlay} onReset={strudelRef.handleReset} />
+                    <ProcButtons onProc={strudelRef.handleProc} handleModifyBadge={handleModifyBadge} onProcPlay={strudelRef.handleProcPlay} onReset={strudelRef.handleReset} />
                 </div>
             </div>
             {/* all content below header bar */}
@@ -381,7 +411,7 @@ function StrudelPlayer() {
 
                 <div className="body-right">
                     <div className="menuNavBar row">
-                        <MenuButtons theme={themeDropdown} defaultValue={activeBtn} onClick={(e) => {
+                        <MenuButtons theme={themeDropdown} defaultValue={activeBtn} isModified={isModified} onClick={(e) => {
                             setActiveBtn(e)
                         }}/>
                     </div>
@@ -420,8 +450,6 @@ function StrudelPlayer() {
                                                     setCPM={setCPM}
                                                     speed={speed}
                                                     setSpeed={setSpeed}
-
-                                                    onHandleGeneric={onHandleGeneric}
                                                     onHandleVolume={onHandleVolume}
                                                     onHandleCPM={onHandleCPM}
                                                     onHandleSpeed={onHandleSpeed}
@@ -438,7 +466,6 @@ function StrudelPlayer() {
                                                     reverb={reverb}
                                                     setReverb={setReverb}
                                                     onHandleReverb={onHandleReverb}
-                                                    onHandleGeneric={onHandleGeneric}
                                                 />
                                             </Accordion.Body>
                                         </Accordion.Item>
@@ -453,8 +480,6 @@ function StrudelPlayer() {
                                                     setCodeFontSize={setCodeFontSize}
                                                     themeDropdown={themeDropdown}
                                                     setThemeDropdown={setThemeDropdown}
-
-                                                    onHandleGeneric={onHandleGeneric}
                                                     onHandleResetControls={onHandleResetControls}
                                                     onHandleFontSize={onHandleFontSize}
                                                 />
