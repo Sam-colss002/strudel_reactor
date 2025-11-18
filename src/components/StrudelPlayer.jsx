@@ -113,6 +113,11 @@ function StrudelPlayer() {
         mapDataToSettings(base);
     }
 
+    const onHandleSongEdit = () => {
+        if (base.debug_mode) { console.log("onHandleSongEdit called"); }
+        markAsModified();
+    }
+
     function markAsModified() {
         setIsModified(true);
         strudelRef.setIsModified(true);
@@ -344,7 +349,7 @@ function StrudelPlayer() {
 
                             <div className="unprocessedTextPanel" id="codePanel" 
                             style={{ display: (visibleEditor === 0) ? 'block' : 'none'}}>
-                                <PreprocessTextArea songText={songText} setSongText={setSongText} />
+                                <PreprocessTextArea songText={songText} setSongText={setSongText} onHandleSongEdit={onHandleSongEdit} />
                             </div>
                             <div className="processedCodePanel" id="codePanel"
                             style={{ display: (visibleEditor === 1 ) ? 'block' : 'none'}}>
