@@ -110,6 +110,7 @@ function StrudelPlayer() {
         setVolume(base.DEFAULT_VOLUME);
         setCPM(base.DEFAULT_CPM);
         setReverb(base.DEFAULT_REVERB);
+        setSpeed(base.DEFAULT_SPEED);
         setThemeDropdown(base.DEFAULT_THEME);
         strudelRef.setGlobalVolume(base.DEFAULT_VOLUME);
         strudelRef.setGlobalCPM(base.DEFAULT_CPM);
@@ -235,6 +236,8 @@ function StrudelPlayer() {
             strudelRef.setGlobalCPM(settingsJSON["cpm"]);
             setReverb(settingsJSON["reverb"]);
             strudelRef.setGlobalReverb(settingsJSON["cpm"]);
+            setSpeed(settingsJSON["speed"]);
+            strudelRef.setGlobalSpeed(settingsJSON["speed"]);
             if (base.DEBUG_MODE) {
                 document.getElementById("checkbox_1").checked = settingsJSON["checkbox1"];
                 document.getElementById("checkbox_2").checked = settingsJSON["checkbox2"];
@@ -402,7 +405,7 @@ function StrudelPlayer() {
                                                     const file = e.target.files[0];
                                                     onHandleImportJSON(file);
                                                 }} accept=".json" type="file" />
-                                                <label for="fileUploadElement" className="btn container ioBtnRow" style={{ textAlign:'center', maxWidth:'25%' }} id="importJSON" >Import JSON</label>
+                                                <label htmlFor="fileUploadElement" className="btn container ioBtnRow" style={{ textAlign:'center', maxWidth:'25%' }} id="importJSON" >Import JSON</label>
                                                 <div className="container ioBtnRow dontShow" disabled style={{ textAlign:'center', width:'5%' }} ></div>
                                                 <button id="reset" className="btn container ioBtnRow" onClick={handleResetCode} style={{ textAlign:'center', maxWidth:'40%' }}>Restore Default Song</button>
                                             </div>
