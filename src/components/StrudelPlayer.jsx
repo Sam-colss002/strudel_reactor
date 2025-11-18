@@ -23,36 +23,31 @@ import { useAccordionButton } from 'react-bootstrap/AccordionButton';
 import Card from 'react-bootstrap/Card';
 
 import { StrudelContext } from "../App";
+import { theme } from "@strudel/codemirror";
 let defaultTune = stranger_tune;
 let setupMethods;
 
-function StrudelPlayer(context) {
+/* need to stop edits to processed code not working
+ *
+ */
+
+function StrudelPlayer() {
+
     const hasRun = useRef(false);
     const [ songText, setSongText ] = useState("");
     const [ activeBtn, setActiveBtn ] = useState(base.DEFAULT_MENU);
     const [ errorText, setErrorText ] = useState("");
 
-    // audio_controls
-    // const [ volume, setVolume ] = useState(base.DEFAULT_VOLUME);
-    // const [ cpm, setCPM ] = useState(base.DEFAULT_CPM);
-
-    // // dj_controls
-    // const [ reverb, setReverb ] = useState(base.DEFAULT_REVERB);
-
     const [ visibleEditor, setVisibleEditor ] = useState(0);
 
-    // editor controls
-    // const [ themeDropdown, setThemeDropdown] = useState(base.DEFAULT_THEME); // light is default for maximum effect
-    // const [ codeFontSize, setCodeFontSize ] = useState(base.DEFAULT_FONT_SIZE);
-
-    const { volume, setVolume, cpm, setCPM, 
+    const { volume, setVolume, cpm, setCPM, speed, setSpeed,
         themeDropdown, setThemeDropdown, codeFontSize, 
-        setCodeFontSize, reverb, setReverb } = useContext(StrudelContext);
+        setCodeFontSize, reverb, setReverb, strudelData, setStrudelData } = useContext(StrudelContext);
 
     let strudelRef = new StrudelSetupClass(stranger_tune, setSongText, volume, cpm, reverb );
 
+    // TODO: unused?
     const getSettingValues = ReturnSettingValues();
-
     function ReturnSettingValues() {
         return {
             volume,
@@ -60,8 +55,7 @@ function StrudelPlayer(context) {
             reverb
         }
     } 
-
-
+    
     /** on load the player needs to setup the strudel */
     useEffect((e) => {
         if (!hasRun.current) {
@@ -70,41 +64,34 @@ function StrudelPlayer(context) {
             document.getElementById("consolePanelText").innerText = "";
             console.log("hasRun is false; setting up Strudel");
             hasRun.current = true;
-            strudelRef.StrudelSetup(stranger_tune, setSongText, volume, cpm, reverb );
+            strudelRef.StrudelSetup(stranger_tune, setSongText, volume, cpm, reverb, speed );
             strudelRef.setGlobalVolume(volume);
             strudelRef.setGlobalCPM(cpm);
             strudelRef.setGlobalReverb(reverb);
+            strudelRef.setGlobalSpeed(speed);
+            
             /* instead of these, it assign this.(...) to the params in StrudelSetup
              * and use processedSettings array to prevent updating b4 process button clicked
              */
         }
-    }, []);
-
-
-
+    }, [hasRun.current]);
+    
     /** Called upon *every* update. For only very sparing use  */
     useEffect((e) => {
-        //console.log("Second useEffect in StrudelPlayer called");
+        console.log("update triggered");
         onHandleFontSize(); // double call wont stop padding from not updating, so this has to be here
-        console.log("strudelRef.testVolume : " + strudelRef.testVolume());
-
-        // add listener to print logs into console panel
-        //document.getElementById("consolePanelText").addEventListener("useState", onHandleConsolePanel(e));
-        
     });
-
-    // broken
-    function onHandleConsolePanel(e) {
-        //document.getElementById("consolePanelText").innerText += "\n"+e+"\n";
-    }
-
-    const [ showErrText, setShowErrText ] = useState(false) // for later use
 
     /** forces the panels to update text according to current settings */
     function onHandleFontSize() {
+        console.log("a : " + codeFontSize);
         let padding = codeFontSize * 2;
         document.getElementById("editor").style.cssText = `a:display: block; background-color: var(--background); font-size: `+codeFontSize+`px; font-family: monospace;`;
         document.getElementById("proc").style.cssText = `resize: none; font-size: `+codeFontSize+`px;`+`padding-left:`+padding+`px;`;
+    }
+
+    function onHandleSpeed() {
+        strudelRef.setGlobalSpeed(speed);
     }
 
     /** resets both LHS panel (editor and processed text) */
@@ -122,10 +109,13 @@ function StrudelPlayer(context) {
         onHandleFontSize();
         setVolume(base.DEFAULT_VOLUME);
         setCPM(base.DEFAULT_CPM);
+        setReverb(base.DEFAULT_REVERB);
+        setSpeed(base.DEFAULT_SPEED);
         setThemeDropdown(base.DEFAULT_THEME);
         strudelRef.setGlobalVolume(base.DEFAULT_VOLUME);
         strudelRef.setGlobalCPM(base.DEFAULT_CPM);
-        strudelRef.setReverb(base.DEFAULT_REVERB);
+        strudelRef.setGlobalReverb(base.DEFAULT_REVERB);
+        strudelRef.setGlobalSpeed(base.DEFAULT_SPEED);
         document.getElementById("checkbox_1").checked = document.getElementById("checkbox_1").defaultChecked;
         document.getElementById("checkbox_2").checked = document.getElementById("checkbox_2").defaultChecked;
     }
@@ -155,9 +145,9 @@ function StrudelPlayer(context) {
     }
 
     const onHandleVolume = (e) => {
-        let newVolume = parseFloat(e.target.value);
-        setVolume(newVolume);
-        strudelRef.setGlobalVolume(newVolume);
+        //let newVolume = parseFloat(e.target.value);
+        //setVolume(newVolume);
+        strudelRef.setGlobalVolume(volume);
     };
 
     const onHandleCPM = (e) => {
@@ -246,6 +236,8 @@ function StrudelPlayer(context) {
             strudelRef.setGlobalCPM(settingsJSON["cpm"]);
             setReverb(settingsJSON["reverb"]);
             strudelRef.setGlobalReverb(settingsJSON["cpm"]);
+            setSpeed(settingsJSON["speed"]);
+            strudelRef.setGlobalSpeed(settingsJSON["speed"]);
             if (base.DEBUG_MODE) {
                 document.getElementById("checkbox_1").checked = settingsJSON["checkbox1"];
                 document.getElementById("checkbox_2").checked = settingsJSON["checkbox2"];
@@ -299,6 +291,8 @@ function StrudelPlayer(context) {
         let i = 0;
         if (!( data.volume < base.VOLUME_MAX ))            {i++;alertText+=("\n"+i+" : volume ("+data.volume+") > max ("+base.VOLUME_MAX+")"); }
         if (!( data.volume > base.VOLUME_MIN ))            {i++;alertText+=("\n"+i+" : volume ("+data.volume+") < min ("+base.VOLUME_MIN+")"); }
+        if (!( data.speed < Math.max(...base.SPEEDS) ))    {i++;alertText+=("\n"+i+" : speed ("+data.speed+") > max ("+Math.max(...base.SPEEDS)+")"); }
+        if (!( data.speed > Math.min(...base.SPEEDS) ))    {i++;alertText+=("\n"+i+" : speed ("+data.speed+") < min ("+Math.min(...base.SPEEDS)+")"); }
         if (!( data.fontSize < base.FONT_SIZE_SLIDER_MAX )){i++;alertText+=("\n"+i+" : fontSize ("+data.fontSize+") > max ("+base.FONT_SIZE_SLIDER_MAX+")"); }
         if (!( data.fontSize > base.FONT_SIZE_SLIDER_MIN )){i++;alertText+=("\n"+i+" : fontSize ("+data.fontSize+") < min ("+base.FONT_SIZE_SLIDER_MIN+")"); }
         if (!( base.THEMES_LIST.includes(data.theme) ))    {i++;alertText+=("\n"+i+" : no theme"); }
@@ -364,7 +358,7 @@ function StrudelPlayer(context) {
                         </div>
                     </div>
 
-                    <div className="" id="leftPanel">
+                    <div className="" id="leftTopPanel">
                             <div id="liveAlertPlaceholder"></div>
 
                             <div className="unprocessedTextPanel" id="codePanel" 
@@ -382,8 +376,9 @@ function StrudelPlayer(context) {
                             </div>
                         </div>
                     
-                    <div className="" id="leftPanel">
-                        <AudioGraph />
+                    <div className="menuJustTextBox" id="leftBottomPanel">
+                        <canvas hidden id="roll"></canvas>
+                        <AudioGraph context={StrudelContext} />
                     </div>
                 </div>
 
@@ -410,7 +405,7 @@ function StrudelPlayer(context) {
                                                     const file = e.target.files[0];
                                                     onHandleImportJSON(file);
                                                 }} accept=".json" type="file" />
-                                                <label for="fileUploadElement" className="btn container ioBtnRow" style={{ textAlign:'center', maxWidth:'25%' }} id="importJSON" >Import JSON</label>
+                                                <label htmlFor="fileUploadElement" className="btn container ioBtnRow" style={{ textAlign:'center', maxWidth:'25%' }} id="importJSON" >Import JSON</label>
                                                 <div className="container ioBtnRow dontShow" disabled style={{ textAlign:'center', width:'5%' }} ></div>
                                                 <button id="reset" className="btn container ioBtnRow" onClick={handleResetCode} style={{ textAlign:'center', maxWidth:'40%' }}>Restore Default Song</button>
                                             </div>
@@ -426,11 +421,13 @@ function StrudelPlayer(context) {
                                                     setVolume={setVolume}
                                                     cpm={cpm}
                                                     setCPM={setCPM}
+                                                    speed={speed}
+                                                    setSpeed={setSpeed}
 
                                                     onHandleGeneric={onHandleGeneric}
                                                     onHandleVolume={onHandleVolume}
                                                     onHandleCPM={onHandleCPM}
-                                                    theme={themeDropdown}
+                                                    onHandleSpeed={onHandleSpeed}
                                                 />
                                             </Accordion.Body>
                                         </Accordion.Item>
@@ -461,9 +458,8 @@ function StrudelPlayer(context) {
                                                     setThemeDropdown={setThemeDropdown}
 
                                                     onHandleGeneric={onHandleGeneric}
-                                                    onHandleFontSize={onHandleFontSize}
                                                     onHandleResetControls={onHandleResetControls}
-                                                    theme={themeDropdown}
+                                                    onHandleFontSize={onHandleFontSize}
                                                 />
                                             </Accordion.Body>
                                         </Accordion.Item>
@@ -484,21 +480,15 @@ function StrudelPlayer(context) {
             </div>
             <div>
                 <div className="container-fluid">
-                    
                     <div className="row">
-                        
-
-                        
-                        
                     </div>
-                    
                 </div>
                 {/* this should only appear when errors detected -- relies on a conditionals state to show */}
                 
                 
                 < ErrorTextArea errorText={errorText} setErrorText={setErrorText} />
                 {/* { showErrText ? < ErrorTextArea defaultValue={showErrText} /> : null } */}
-                <canvas hidden id="roll"></canvas>
+                
             </div >
             
         </main >

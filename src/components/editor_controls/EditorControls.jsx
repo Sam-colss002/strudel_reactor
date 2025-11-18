@@ -1,24 +1,25 @@
 import { useState } from "react";
-import ThemDropdown from "./ThemeDropdown";
+import ThemeDropdown from "./ThemeDropdown";
+import CodeFontSizeSlider from "./CodeFontSizeSlider";
 import base from '../BaseSettings';
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import CodeFontSizeSlider from "./CodeFontSizeSlider";
 
-export function EditorControls({ codeFontSize, setCodeFontSize, themeDropdown, setThemeDropdown, onHandleGeneric, onHandleTheme, onHandleFontSize, theme }) {
+
+export function EditorControls({ codeFontSize, setCodeFontSize, themeDropdown, setThemeDropdown, onHandleFontSize, onHandleGeneric }) {
     return (
         <>
-            <div className="dj-controls bg-foreground" onChange={onHandleGeneric} data-theme={theme}>
+            <div className="dj-controls bg-foreground" onChange={onHandleGeneric} >
                 <br/>
                 {/* <div className="mb-4 h6 bg-foreground">DJ Controls</div> */}
 
                 <div className="row mb-0">
                     <div className="col bg-foreground">
-                        <ThemDropdown themeDropdown={themeDropdown} setThemeDropdown={setThemeDropdown} onHandleGeneric={onHandleGeneric} onHandleTheme={onHandleTheme}/>
+                        <ThemeDropdown themeDropdown={themeDropdown} setThemeDropdown={setThemeDropdown} />
                     </div>
                     <div className="col bg-foreground">
-                        <CodeFontSizeSlider codeFontSize={codeFontSize} setCodeFontSize={setCodeFontSize} onHandleGeneric={onHandleGeneric} onHandleFontSize={onHandleFontSize} />
+                        <CodeFontSizeSlider codeFontSize={codeFontSize} setCodeFontSize={setCodeFontSize} onHandleFontSize={onHandleFontSize} />
                     </div>
                 </div>
 
