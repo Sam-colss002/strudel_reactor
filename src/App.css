@@ -203,7 +203,7 @@ html, body {
   
 }
 
-.HelpPanel, .ControlPanel, .SourcePanel, .ControlPanel, .importExportBtns {
+.HelpPanel, .ControlPanel, .SourcePanel, .ControlPanel, .importExportBtns, i, ul, li {
   background-color: var(--primaryColour) !important;
   border-radius:0px !important;
 }

@@ -9,19 +9,28 @@ function HelpPanel({  }) {
                     <h5>Strudel Demo</h5>
 
                     <h6>Features</h6>
-                    <p>Menu panel *accordions*, *dropdowns* for various settings, *sliders* for volume and reverb, *nav bars* for menu navigation, 
-                        a *graph* for displaying the playing song's gain, quality of life features such as light/dark mode and font size, *volume* control, 
-                        *reverb, cpm, speed* controls, *badges* to keep user aware of changes made, and the ability to *load and import JSON* settings.</p>
+                    <ul>
+                    <li>Menu panel <i>accordions</i>, <br/></li>
+                    <li><i>dropdowns</i> for various settings, <br/></li>
+                    <li><i>sliders</i> for volume and reverb, <br/></li>
+                    <li><i>nav bars</i> for menu navigation, <br/></li>
+                    <li>a <i>graph</i> for displaying the playing song's gain, <br/></li>
+                    <li>quality of life features such as light/dark mode and font size, <br/></li>
+                    <li><i>volume</i> control, <br/></li>
+                    <li><i>reverb, cpm, speed</i> controls, <br/></li>
+                    <li><i>badges</i> to keep user aware of changes made,<br/></li>
+                    <li>and the ability to <i>load and import JSON</i> settings.</li>
+                    </ul>
                     
                     <h6>Quirks & Usage Guidelines</h6>
                     <b>Editor View</b>
                     <p>Switch between editor view (between processed & unprocessed) with the button to the right of "Viewing", 
-                        below the header in the top right. To *edit the song*, please use the unprocessed code box. 
+                        below the header in the top right. To <i>edit the song</i>, please use the unprocessed code box. 
                         This allows you to run the previously-processed code whilst making a new song.</p>
 
                     <b>The Graph</b>
-                    <p>The graph measures *combined gain*; that is, a combination of `gain`, `postgain` and 
-                        the variable affected by *volume* and applied afterwards to allow for both gain 
+                    <p>The graph measures <i>combined gain</i>; that is, a combination of `gain`, `postgain` and 
+                        the variable affected by <i>volume</i> and applied afterwards to allow for both gain 
                         and postgain to be used by the user, `dry`. The graph will increase its maximum Y value to accomdate rising data.</p>
 
                     <h5>Controls</h5>
@@ -46,7 +55,7 @@ function HelpPanel({  }) {
                     <b>FontSize</b>
                     <p>Controls the editor (both processed and unprocessed)'s text size.</p>
 
-                    <h5>Other</h5>
+                    <h5>Other</h5><br/>
                     <b>Restore Default Settings</b>
                     <p>Restores settings to *base* settings.</p>
 
@@ -57,6 +66,7 @@ function HelpPanel({  }) {
                     <p>The Github Repository for this project, including an extended description 
                         of the application and its various features can be found <a href={link}>here</a>.
                     </p>
+                    <br/>
                 </div>
             </div>
         </>
