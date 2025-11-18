@@ -1,4 +1,7 @@
 
+/**
+ * This files readability is irrelevant; it is just hiding hard-coded values.
+ */
 const a = parseFloat(0);
 const b = parseFloat(1);
 const c = parseFloat(0.5);
@@ -20,6 +23,7 @@ const r = parseFloat(0.1);
 const s = ["Debug", "Light", "Dark"];
 const t = parseFloat(1.0);
 const u = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0]
+const v = 100;
 
 const base = {
     volume_min: a,
@@ -43,7 +47,8 @@ const base = {
     reverb_slider_step: r,
     themes_list: s,
     speed: t,
-    speeds: u
+    speeds: u,
+    max_logs: v
 };
 
 export default base;

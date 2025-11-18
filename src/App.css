@@ -413,7 +413,8 @@ html, body {
 /* enforces no borders between input labels & their connected values - sliders, text, etc */
 .input-group-text, .menu_label_value {
   border-color: var(--secondaryColour) !important;
-  background-color: red !important;
+  background-color: var(--secondaryColour) !important;
+  text-align: center !important;
 }
 
 .accordionHeader, .accordion-button {
@@ -434,6 +435,22 @@ html, body {
 .menuBtns {
   width:10px !important;
 }
+
+.mt-5.menuJustTextBox.consoleText p {
+  line-height: 2.25vh;
+  display:inline-block;
+}
+
+.mt-5.menuJustTextBox.consoleText span {
+  border-color: var(--primaryColour) !important;
+  background-color: var(--primaryColour) !important;
+  color: var(--quaternaryColour);
+  text-align: center !important;
+  display: inline-block !important;
+  text-align: left !important;
+  width: 5vh;
+}
+
 
 .input-group-text {
   background-color: var(--tertiaryColour) !important;
@@ -539,8 +556,7 @@ html, body {
 }
 
 #editor, #proc, .processedCodePanel {
-  caret-shape: underscore !important;
-  caret-color: red !important;
+  /* caret-color: red !important; */
 }
 
 .cm-line::selection, .cm-content::selection, .textarea::selection {

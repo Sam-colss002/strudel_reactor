@@ -6,17 +6,10 @@ let maxValue = 0.1;
 
 export default function AudioGraph() {
     const hasRun = useRef(false);
-    /* allows us to read strudelData from context
-     * - this is *not* d3data, this is the cleaned up strudelData specifically for graphing
-     */
-    let { strudelData, setStrudelData } = useContext(StrudelContext);
-    
-    //const [ graphNumber, setGraphNumber ] = useState(0);
+
     // the graph array contains every currently displayed point on the graph
     const [ graphArray, setGraphArray] = useState([]);
     const maxItems = 100;
-    //const maxValue = 3; // yAxis limit
-    //let maxValueRecorded = 0.1;
 
     const clearD3Data = () => {
         setGraphArray([]);

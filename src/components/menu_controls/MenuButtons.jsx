@@ -30,11 +30,12 @@ function MenuButtons({ activeBtn, onClick, isModified }) {
                 <button className={`btn btn-${isDefault("controlBtn")} menuBtn`} id="controlBtn" onClick={(e) => {
                     handleMenuButton(e);
                     }}>Controls {(isModified) ? modifiedBadge : null}</button>
-
+                {/* hidden as it's not worth showing (incomplete) */}
+                { (base.debug_mode) ?
                 <button className={`btn btn-${isDefault("consoleBtn")} menuBtn`} id="consoleBtn" onClick={(e) => {
                     handleMenuButton(e);
                     }}>Console{badge}</button>
-                    
+                : null }
                 { (base.debug_mode) ?
                 <button className={`btn btn-${isDefault("placeholderBtn")} menuBtn`} id="unusedBtn2" onClick={(e) => {
                     handleMenuButton(e);

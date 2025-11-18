@@ -37,74 +37,70 @@ function StrudelPlayer() {
     const [ songText, setSongText ] = useState("");
     const [ activeBtn, setActiveBtn ] = useState(base.default_menu);
     const [ errorText, setErrorText ] = useState("");
-    
 
     const [ visibleEditor, setVisibleEditor ] = useState(0);
 
     const { volume, setVolume, cpm, setCPM, speed, setSpeed,
         themeDropdown, setThemeDropdown, codeFontSize, 
-        setCodeFontSize, reverb, setReverb, strudelData, setStrudelData, isModified, setIsModified } = useContext(StrudelContext);
+        setCodeFontSize, reverb, setReverb, strudelData, setStrudelData, isModified, setIsModified, isPlaying, setIsPlaying } = useContext(StrudelContext);
 
     let strudelRef = new StrudelSetupClass(stranger_tune, setSongText, volume, cpm, reverb, speed, false );
-
-    // TODO: unused?
-    const getSettingValues = ReturnSettingValues();
-    function ReturnSettingValues() {
-        return {
-            volume,
-            cpm,
-            reverb
-        }
-    } 
     
     /** on load the player needs to setup the strudel */
     useEffect((e) => {
         if (!hasRun.current) {
             console.log("\nLoading Strudel Player...");
-            document.getElementById("consolePanelText").innerText = "";
+            
             console.log("hasRun is false; setting up Strudel");
             hasRun.current = true;
+            document.addEventListener("logEvent", handleLogEvent);
+            document.dispatchEvent(new CustomEvent("logEvent", { detail: "Loading Strudel Player..." }));
             strudelRef.StrudelSetup(stranger_tune, setSongText, volume, cpm, reverb, speed, isModified);
-            // above makes these redundant
-            //strudelRef.volume = volume;
-            //strudelRef.setGlobalVolume(volume);
-            //strudelRef.setGlobalCPM(cpm);
-            //strudelRef.setGlobalReverb(reverb);
-            //strudelRef.setGlobalSpeed(speed);
-            //strudelRef.volume = volume; // use this to replace setGlobal(...) functions
-            
-            /* instead of these, it assign this.(...) to the params in StrudelSetup
-             * and use processedSettings array to prevent updating b4 process button clicked
-             */
         }
     }, [hasRun.current]);
     
     /** Called upon *every* update. For only very sparing use  */
     useEffect(() => {
-        console.log("update triggered : ");
-        strudelRef.printProcAndNonProc();
-        //strudelRef.setIsModified(isModified);
-        console.log("getIsModified : " + strudelRef.getIsModified());
+        if (base.debug_mode) {
+            console.log("update triggered : ");
+            strudelRef.printProcAndNonProc();
+            console.log("getIsModified : " + strudelRef.getIsModified());
+        }
         setIsModified(strudelRef.getIsModified());
-        
-        //strudelRef.speed = speed;
-        // strudelRef.setGlobalVolume(volume);
-        // strudelRef.setGlobalCPM(cpm);
-        // strudelRef.setGlobalReverb(reverb);
-        // strudelRef.setGlobalSpeed(speed);
         onHandleFontSize(); // double call wont stop padding from not updating, so this has to be here
     });
 
     /** forces the panels to update text according to current settings */
     function onHandleFontSize() {
+        if (base.debug_mode) { console.log("onHandleSpeed called"); }
         let padding = codeFontSize * 2;
         document.getElementById("editor").style.cssText = `a:display: block; background-color: var(--background); font-size: `+codeFontSize+`px; font-family: monospace;`;
         document.getElementById("proc").style.cssText = `resize: none; font-size: `+codeFontSize+`px;`+`padding-left:`+padding+`px;`;
     }
 
+    function handleLogEvent(e) {
+        console.log("handleLogEvent called");
+        let mainDiv = document.getElementById("consolePanelText");
+        let p = document.createElement("p");
+        let span = document.createElement("span");
+        let br = document.createElement("br");
+        let children = mainDiv.childNodes;
+        let count = Math.floor(children.length/3);
+        p.innerText = e.detail;
+        span.innerText = count+1;
+        //p.innerText += count+(count > 9 ? (count > 99 ? ".." : "....") : ".......")+e.detail;
+        mainDiv.appendChild(br);
+        mainDiv.appendChild(span);
+        mainDiv.appendChild(p);
+        if (count > base.max_logs) {
+            mainDiv.removeChild(children[2]);
+        }
+    }
+
     /** resets both LHS panel (editor and processed text) */
     function handleResetCode() {
         console.log("Resetting editor")
+        document.dispatchEvent(new CustomEvent("logEvent", { detail: "Resetting editor" }));
         setSongText(stranger_tune);
         document.getElementById("proc").value=stranger_tune;
         strudelRef.Proc();
@@ -113,26 +109,9 @@ function StrudelPlayer() {
     /** will reset controls to default; not the loaded settings */
     function onHandleResetControls() {
         console.log("Resetting controls");
+        document.dispatchEvent(new CustomEvent("logEvent", { detail: "Resetting controls" }));
         mapDataToSettings(base);
     }
-
-    // // currently unused, and can be messy if used
-    // const onHandleGeneric = (e) => {
-    //     console.log("\nSTOP CALLING onHandleGeneric!!");
-    //     return;
-    //     let idString = e.target.id;
-    //     // debug prints
-    //     if (idString.startsWith("dropdown_")) {
-    //         console.log("onHandleChangeRequest called in StrudelPlayer - " + e.target.id + " : " + document.getElementById(e.target.id).innerHTML);
-    //     } else if (idString.startsWith("checkbox_")) {
-    //         console.log("onHandleChangeRequest called in StrudelPlayer - " + e.target.id + " : " + e.target.checked);
-    //     }  else {
-    //         console.log("onHandleChangeRequest called in StrudelPlayer - " + e.target.id + " : " + e.target.value);
-    //         if (idString.startsWith("volume")) {
-    //             console.log("volume related change ");
-    //         }
-    //     }
-    // }
 
     function markAsModified() {
         setIsModified(true);
@@ -140,25 +119,25 @@ function StrudelPlayer() {
     }
 
     const onHandleSpeed = () => {
-        console.log("onHandleSpeed called");
+        if (base.debug_mode) { console.log("onHandleSpeed called"); }
         markAsModified();
         strudelRef.speed = speed;
     }
 
     const onHandleReverb = () => {
-        console.log("onHandleReverb called");
+        if (base.debug_mode) { console.log("onHandleReverb called"); }
         markAsModified();
         strudelRef.reverb = reverb;
     }
 
     const onHandleVolume = () => {
-        console.log("onHandleVolume called");
+        if (base.debug_mode) { console.log("onHandleVolume called"); }
         markAsModified();
         strudelRef.volume = volume;
     };
 
     const onHandleCPM = () => {
-        console.log("onHandleCPM called");
+        if (base.debug_mode) { console.log("onHandleCPM called"); }
         markAsModified();
         strudelRef.cpm = cpm;
     };
@@ -166,6 +145,7 @@ function StrudelPlayer() {
     /** creates JSON-valid data to save as a JSON file */
     function onHandleExportJSON() {
         console.log("Exporting JSON...")
+        document.dispatchEvent(new CustomEvent("logEvent", { detail: "Exporting JSON..." }));
         let exportJSON = {
             "volume": volume,
             "cpm": cpm,
@@ -193,11 +173,13 @@ function StrudelPlayer() {
 
         if (!file) {
             alert("No file selected. Please choose a JSON file.", "error");
+            document.dispatchEvent(new CustomEvent("logEvent", { detail: "No file selected. Please choose a JSON file." }));
             return;
         }
 
         if (!file.type.endsWith("json")) {
             alert("Unsupported file type. Please select a JSON file.", "error");
+            document.dispatchEvent(new CustomEvent("logEvent", { detail: "Unsupported file type. Please select a JSON file." }));
             return;
         }
 
@@ -207,6 +189,7 @@ function StrudelPlayer() {
             onHandleLoadSettings(readableJSON);
         };
         reader.onerror = () => {
+            document.dispatchEvent(new CustomEvent("logEvent", { detail: "Error reading the file. Please try again." }));
             alert("Error reading the file. Please try again.", "error");
         };
         // this must be *here* for reader.onload to work; it sets reader.result
@@ -231,10 +214,6 @@ function StrudelPlayer() {
         strudelRef.cpm = data.cpm;
         strudelRef.reverb = data.reverb;
         strudelRef.speed = data.speed;
-        //strudelRef.setGlobalVolume(data.volume);
-        //strudelRef.setGlobalCPM(data.cpm);
-        //strudelRef.setGlobalReverb(data.reverb);
-        //strudelRef.setGlobalSpeed(data.speed);
         if (base.debug_mode) {
             document.getElementById("checkbox_1").checked = data.checkbox1;
             document.getElementById("checkbox_2").checked = data.checkbox2;
@@ -262,6 +241,7 @@ function StrudelPlayer() {
         console.log("Loaded JSON data keys are valid and the corresponding data values are within acceptable limits.");
 
         try {
+            document.dispatchEvent(new CustomEvent("logEvent", { detail: "Loaded JSON data keys are valid and the corresponding data values are within acceptable limits. Loading data..." }));
             mapDataToSettings(data);
             
         } catch (e) {
@@ -302,6 +282,7 @@ function StrudelPlayer() {
                 count++;
             }
             alert(alertText);
+            document.dispatchEvent(new CustomEvent("logEvent", { detail: alertText }));
             return false;
         }
     }
@@ -325,37 +306,6 @@ function StrudelPlayer() {
         if (i != 0) { alert(alertText); }
         return (i != 0 ? false : true);
     }
-
-    // THIS IS COPY AND PASTED FOR REFERENCE SAKE;
-    /* needs to properly register closes
-     * needs to properly alert ONCE
-     * probably gonna be using custom events/button triggers, this is just for testing
-    */
-    // const alertPlaceholder = document.getElementById('liveAlertPlaceholder');
-    // const appendAlert = (message, type) => {
-    //     const wrapper = document.createElement('div');
-    //     wrapper.innerHTML = [
-    //         `<div class="alert alert-${type} alert-dismissible" role="alert">`,
-    //         `   <div>${message}</div>`,
-    //         '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
-    //         '</div>'
-    //     ].join('');
-
-    //     alertPlaceholder.append(wrapper);
-    // }
-
-    // const alertTrigger = document.getElementById('liveAlertBtn');
-    // if (alertTrigger) {
-    //     alertTrigger.addEventListener('click', () => {
-    //         appendAlert('Nice, you triggered this alert message!', 'success');
-    //     })
-    // }
-    // if (alertTrigger) {
-    //     alertTrigger.addEventListener('btn-close', () => {
-    //         console.log("close!!");
-    //         appendAlert('Nice, you triggered this alert message!', 'success');
-    //     })
-    // }
 
     // expanded upon as I need to remove badge on click
     function handleModifyBadge() {
@@ -394,10 +344,6 @@ function StrudelPlayer() {
 
                             <div className="unprocessedTextPanel" id="codePanel" 
                             style={{ display: (visibleEditor === 0) ? 'block' : 'none'}}>
-                                {/* TODO: should i keep both? both allows user to play last processed song whilst still editing it
-                                it does also mention preprocessing code in the  specs; I think i'll just leave it as is for now
-                                functionality with both is kinda wack, edits in proctext box are ignored
-                                */}
                                 <PreprocessTextArea songText={songText} setSongText={setSongText} />
                             </div>
                             <div className="processedCodePanel" id="codePanel"

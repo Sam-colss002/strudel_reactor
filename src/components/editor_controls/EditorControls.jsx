@@ -25,13 +25,13 @@ export function EditorControls({ codeFontSize, setCodeFontSize, themeDropdown, s
 
                 <div className="row mb-0 bg-foreground">
                         {/* TODO: this does nothing! */}
-                    <div className="col bg-foreground" style={{ display: (base.DEBUG_MODE === true) ? 'block' : 'none' }} >
+                    <div className="col bg-foreground" style={{ display: (base.debug_mode === true) ? 'block' : 'none' }} >
                         <input className="form-check-input" type="checkBox" name="aa" defaultChecked={base.checkbox1} id="checkbox_1" onChange={onHandleGeneric} /> {/*onChange={ProcAndPlay} */}
                         <label className="form-check-label bg-foreground" htmlFor="checkbox_1">
                             check1: a {/* p1 ON */}
                         </label>
                     </div>
-                    <div className="col bg-foreground" style={{ display: (base.DEBUG_MODE === true) ? 'block' : 'none' }}>
+                    <div className="col bg-foreground" style={{ display: (base.debug_mode === true) ? 'block' : 'none' }}>
                         <input className="form-check-input" type="checkBox" name="bb" defaultChecked={base.checkbox2} id="checkbox_2" onChange={onHandleGeneric} /> {/*onChange={ProcAndPlay} */}
                         <label className="form-check-label bg-foreground" htmlFor="checkbox_2">
                             check2: a {/* p1 HUSH */}

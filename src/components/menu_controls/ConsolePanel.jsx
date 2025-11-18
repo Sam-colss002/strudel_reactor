@@ -1,13 +1,12 @@
 
-
-// works but it doesn't save state when switching from control and back again :(
-function ConsolePanel({  }) {
+function ConsolePanel() {
     
     return (
         <>
             <div className="" role="group" id="rightPanel" aria-label="Console panel">
-                <div className="mt-5 menuJustTextBox" id="consolePanelText">
-                    console panel
+                <div className="mt-5 menuJustTextBox consoleText" id="consolePanelText">
+                    <h5>Strudel Logs</h5>
+                    <p id="consoleP"></p>
                 </div>
             </div>
         </>
