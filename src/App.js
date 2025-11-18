@@ -16,17 +16,18 @@ export const StrudelContext = createContext(null);
 
 export default function App() {
     // audio_controls
-    const [ volume, setVolume ] = useState(base.DEFAULT_VOLUME);
-    const [ cpm, setCPM ] = useState(base.DEFAULT_CPM);
-    const [ speed, setSpeed ] = useState(base.DEFAULT_SPEED);
+    const [ volume, setVolume ] = useState(base.volume);
+    const [ cpm, setCPM ] = useState(base.cpm);
+    const [ speed, setSpeed ] = useState(base.speed);
     const [ strudelData, setStrudelData ] = useState([]);
-    
+    const [ isModified, setIsModified ] = useState(false);
+
     // editor controls
-    const [ themeDropdown, setThemeDropdown] = useState(base.DEFAULT_THEME); // light is default for maximum effect
-    const [ codeFontSize, setCodeFontSize ] = useState(base.DEFAULT_FONT_SIZE);
+    const [ themeDropdown, setThemeDropdown] = useState(base.themeDropdown); // light is default for maximum effect
+    const [ codeFontSize, setCodeFontSize ] = useState(base.codeFontSize);
 
     // dj_controls
-    const [ reverb, setReverb ] = useState(base.DEFAULT_REVERB);
+    const [ reverb, setReverb ] = useState(base.reverb);
 
     const value = useMemo(() => {
         return {
@@ -43,11 +44,13 @@ export default function App() {
             reverb,
             setReverb,
             strudelData,
-            setStrudelData
+            setStrudelData,
+            isModified,
+            setIsModified
             //log: (t) => console.log(t)
         }
         // in order for things to be updated properly, these need to be returned
-    }, [volume, cpm, reverb, speed, themeDropdown, codeFontSize, strudelData, setStrudelData ]);
+    }, [volume, cpm, reverb, speed, themeDropdown, codeFontSize, strudelData, setStrudelData, isModified, setIsModified ]);
         //const [strudelState, setStrudelState] = useState(state);
 
     return (

@@ -1,7 +1,7 @@
 import base from '../BaseSettings';
 
 function ThemeDropdown ({ themeDropdown, setThemeDropdown}) {
-    const themesList = base.THEMES_LIST;
+    const themesList = base.themes_list;
 
     return (
         <>
@@ -15,7 +15,7 @@ function ThemeDropdown ({ themeDropdown, setThemeDropdown}) {
                         }
                     }}>
                         {/* <li><h6 class="dropdown-header">Dropdown explanation here</h6></li> */}
-                        {(base.DEBUG_MODE) ?  
+                        {(base.debug_mode) ?  
                         <li><button className="dropdown-item" id="theme1" name={themesList[0]}>{themesList[0]}</button></li>
                         : ""}
                         <li><button className="dropdown-item" id="theme2" name={themesList[1]}>{themesList[1]}</button></li>

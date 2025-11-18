@@ -1,81 +1,50 @@
-### readme.md
+# readme.md
 
-stuff
-features: 
-- volume slider
-- cpm input
-- editor control/settings: themes, font size
-- 
+# Features
+- Menu panel *accordions*, *dropdowns* for various settings, *sliders* for volume and reverb, *nav bars* for menu navigation,
+a *graph* for displaying the playing song's gain, quality of life features such as light/dark mode and font size, *volume* control,
+*reverb, cpm, speed* controls, *badges* to keep user aware of changes made, and the ability to *load and import JSON* settings.
 
-TODO: clear this
+# Quirks & Usage Guidelines
+- ### Editor View
+Switch between editor view (between processed & unprocessed) with the button to the right of "Viewing", below the header in the top right.
+To *edit the song*, please use the unprocessed code box. This allows you to run the previously-processed code whilst making a new song.
 
-# Getting Started with Create React App
+- ### Processing Changes
+To ensure changes are processed, use the *process* or *proc&play* buttons in the top right. You can see if a song and or setting changes are
+not yet processed if there is a "modified" badge appearing on the "controls" menu button.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+- ### The Graph
+The graph measures *combined gain*; that is, a combination of `gain`, `postgain` and the variable affected by *volume* and applied afterwards to
+allow for both gain and postgain to be used by the user, `dry`. The graph will increase its maximum Y value to accomdate rising data.
 
-## Available Scripts
+# Controls
+## Audio Controls
 
-In the project directory, you can run:
+- ### Volume
+Affects the final volume of each instrument; applied after both "gain" and "postgain".
 
-### `npm start`
+- ### CPM
+Controls the cycles per minute. As per standard, it is divided by four.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- ### Speed
+Multiplier on the play speed of the song.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## DJ Controls
+- ### Reverb
+Applies a reverb affect to the song.
+Be careful, as this can be very loud.
 
-### `npm test`
+## Editor Controls
+- ### Theme
+Switch between UI themes for usability.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- ### FontSize
+Controls the editor (both processed and unprocessed)'s text size.
 
-### `npm run build`
+## Other Control Panel Buttons
+- ### Restore Default Settings
+Restores settings to *base* settings.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- ### Restore Defauilt Song
+Restores the editor(s) to initial load state -- i.e., the example starting song.

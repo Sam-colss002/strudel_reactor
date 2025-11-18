@@ -8,16 +8,14 @@ import { getAudioContext, webaudioOutput, registerSynthSounds } from '@strudel/w
 import { registerSoundfonts } from '@strudel/soundfonts';
 import { stranger_tune } from '../tunes';
 import console_monkey_patch from '../console-monkey-patch';
+import base from './BaseSettings';
 import * as d3 from 'd3';
-
+import { StrudelContext } from "../App";
 
 let strudelEditor = null;
-let processedSettings = [null, null, null];
+let processedSettings = [null, null, null, null];
+let isModified = false;
 
-const handleD3DataUnused = (event) => {
-    // console.log("handleD3Data is using setStrudelData");
-    // setStrudelData(event.detail);
-};
 
 /**  */
 export class StrudelSetupClass{
@@ -29,12 +27,31 @@ export class StrudelSetupClass{
         this.oldProcText = null;
     }
 
-    testVolume() {
-        return this.volume;
+    printProcAndNonProc() {
+        console.log("current settings:\n"+
+            "   volume:"+this.volume+"\n"+
+            "   cpm:"+this.cpm+"\n"+
+            "   reverb:"+this.reverb+"\n"+
+            "   speed:"+this.speed+"\n"+
+            "processed settings:\n"+
+            "   volume:"+processedSettings[0]+"\n"+
+            "   cpm:"+processedSettings[1]+"\n"+
+            "   reverb:"+processedSettings[2]+"\n"+
+            "   speed:"+processedSettings[3]+"\n"
+        )
     }
 
+    getIsModified() {
+        return isModified;
+    }
+
+    setIsModified(bool) {
+        isModified = bool;
+        return isModified;
+    }
+    
+
     Proc = () => {
-        console.log("aaaaa : " + this.volume);
         let procText = document.getElementById("proc").value;
         this.oldProcText = document.getElementById("proc").value;
         if (!procText || !strudelEditor) {
@@ -47,7 +64,10 @@ export class StrudelSetupClass{
             let speedToUse = parseFloat(this.speed);
             processedSettings = [this.volume, this.cpm, this.reverb, this.speed];
             strudelEditor.setCode(procText);
+            document.dispatchEvent(new CustomEvent("logEvent", { detail: "Processed Strudel"}));
         }
+        isModified = false;
+        if (base.debug_mode) { this.printProcAndNonProc(); };
     };
 
     StrudelSetup( stranger_tune, setSongText, volume, cpm, reverb, speed ) {
@@ -93,102 +113,81 @@ export class StrudelSetupClass{
                         await Promise.all([loadModules, registerSynthSounds(), registerSoundfonts()]);
                     },
                 });
-
             
             setSongText(stranger_tune);
-        
-        
-        //this.Proc(); // welcome back, Proc()   lol
-    }
-
-    // TODO: we're using global values here...
-    setGlobalVolume = (value) => {
-        //console.log("setting bigVolume to : " + parseFloat(value));
-        this.volume = value;
-    }
-
-    setGlobalCPM = (value) => {
-        //console.log("setting bigCPM to : " + parseInt(value));
-        this.cpm = parseInt(value);
-    }
-
-    setGlobalReverb = (value) => {
-        //console.log("setting bigReverb to : " + parseFloat(value));
-        this.reverb = parseFloat(value);
-    }
-
-    setGlobalSpeed = (value) => {
-        //console.log("setting bigReverb to : " + parseFloat(value));
-        this.speed = parseFloat(value);
+        this.Proc(); // welcome back, Proc()   lol
     }
 
     handlePlay = () => {
         console.log("Playing Strudel");
         document.dispatchEvent(new CustomEvent("clearD3Data", { detail: "a" }));
-        if (strudelEditor && !strudelEditor.repl?.state?.started) {
-            let procText = document.getElementById("proc").value;
-            let volumeToUse = parseFloat(processedSettings[0]);
-            let cpmToUse = parseInt(processedSettings[1]);
-            let reverbToUse = parseFloat(processedSettings[2]);
-            let speedToUse = parseFloat(processedSettings[3]);
+        try {
+            if (!strudelEditor.repl?.state?.started) {
+                let procText = document.getElementById("proc").value;
+                let volumeToUse = parseFloat(processedSettings[0]);
+                let cpmToUse = parseInt(processedSettings[1]);
+                let reverbToUse = parseFloat(processedSettings[2]);
+                let speedToUse = parseFloat(processedSettings[3]);
 
-            // adds settings to code for use, then removes them to keep them hidden from user
-            if (this.oldProcText) {
-                strudelEditor.setCode((
-                    procText + "\n" + 
-                    "all(x => x.log())" + "\n" + 
-                    "setcpm("+cpmToUse/4*(speedToUse ?? 1)+")"+"\n" + 
-                    "all(x => x.dry("+volumeToUse+").room("+reverbToUse+"));"+"\n"));
-                strudelEditor.evaluate();
-                strudelEditor.setCode(this.oldProcText);
-                // strudelEditor.setCode((
-                // procText + "\n" + 
-                // "all(x => x.log())" + "\n" + 
-                // "setcpm("+cpmToUse/4+")"+"\n" + 
-                // "all(x => x.dry("+volumeToUse+").room("+reverbToUse+"));"+"\n"));
-                // strudelEditor.evaluate();
-                // strudelEditor.setCode(this.oldProcText);
-            } else {
-                
-                strudelEditor.setCode(
-                    procText + "\n" + 
-                    "setcpm("+cpmToUse/4*(speedToUse ?? 1)+")"+"\n" + 
-                    "all(x => x.dry("+volumeToUse+").room("+reverbToUse+"));"+"\n");
-                if (!strudelEditor.repl?.state?.started) {
-                    strudelEditor.stop();
+                // adds settings to code for use, then removes them to keep them hidden from user
+                if (this.oldProcText) {
+                    strudelEditor.setCode((
+                        procText + "\n" + 
+                        "all(x => x.log())" + "\n" + 
+                        "setcpm("+cpmToUse/4*(speedToUse ?? 1)+")"+"\n" + 
+                        "all(x => x.dry("+volumeToUse+").room("+reverbToUse+"));"+"\n"));
                     strudelEditor.evaluate();
+                    document.dispatchEvent(new CustomEvent("logEvent", { detail: "Playing Strudel"}));
+                    strudelEditor.setCode(this.oldProcText);
                 } else {
-                    console.log("CANT START - ALREADY PLAYING");
+                    strudelEditor.setCode(
+                        procText + "\n" + 
+                        "setcpm("+cpmToUse/4*(speedToUse ?? 1)+")"+"\n" + 
+                        "all(x => x.dry("+volumeToUse+").room("+reverbToUse+"));"+"\n");
+                    if (!strudelEditor.repl?.state?.started) {
+                        strudelEditor.stop();
+                        strudelEditor.evaluate();
+                        document.dispatchEvent(new CustomEvent("logEvent", { detail: "Playing Strudel"}));
+                    } else {
+                        console.log("Cannot start strudel; strudel is already playing");
+                    }
                 }
+            } else {
+                document.dispatchEvent(new CustomEvent("logEvent", { detail: "Stopping and Starting Strudel"}));
+                console.log("Failed condition checker in handlePlay");
             }
-        } else {
-            console.log("Failed condition checker in handlePlay");
+        } catch (e) {
+            document.dispatchEvent(new CustomEvent("logEvent", { detail: "Failed to play"}));
+            console.log("Failed condition checker in handlePlay - " + e);
         }
     }
 
-    // use this: strudelEditor.repl?.state?.started
     handleStop = () => {
         console.log("Strudel Stopped");
-        if (strudelEditor) {
+        try {
             strudelEditor.stop();
-        } else {
-            console.log("Failed condition checker in handleStop");
+            document.dispatchEvent(new CustomEvent("logEvent", { detail: "Stopping Strudel"}));
+        } catch (e) {
+            document.dispatchEvent(new CustomEvent("logEvent", { detail: "Failed to stop"}));
+            console.log("Failed condition checker in handleStop - " + e);
         }
     }
 
     handleProc = () => {
         console.log("Processing");
-        if (strudelEditor) {
+        try {
             this.Proc();
-        } else {
-            console.log("Failed condition checker in handleProc");
+        } catch (e) {
+            console.log("Failed condition checker in handleProc - " + e);
+            document.dispatchEvent(new CustomEvent("logEvent", { detail: "Failure to process code; Likely invalid syntax"}));
+            
         }
     }
 
     handleProcPlay = async () => {
         console.log("Processing & Playing");
         document.dispatchEvent(new CustomEvent("clearD3Data", { detail: "a" }));
-        if (strudelEditor) {
+        try {
             this.Proc();
             strudelEditor.stop();
             let procText = document.getElementById("proc").value;
@@ -197,27 +196,18 @@ export class StrudelSetupClass{
             let reverbToUse = parseFloat(this.reverb);
             let speedToUse = parseFloat(this.speed);
 
-            console.log("speedToUse : " + speedToUse);
-            // "all(x => x.gain("+volumeToUse+").room("+reverbToUse+"));"+"\n")
-            // 0:."+volumeToUse+"
-            // "<0 2 3 10:.5>"
-
             strudelEditor.setCode((
                 procText + "\n" + 
                     "all(x => x.log())" + "\n" + 
-                    "setcpm("+cpmToUse/4+")"+"\n" + 
+                    "setcpm("+cpmToUse/4*(speedToUse ?? 1)+")"+"\n" + 
                     "all(x => x.dry("+volumeToUse+").room("+reverbToUse+"));"+"\n"));
             strudelEditor.evaluate();
-            // strudelEditor.setCode((
-            //     procText + "\n" + 
-            //     "all(x => x.log())" + "\n" + 
-            //     "setcpm("+cpmToUse/4+")"+"\n" + 
-            //     "all(x => x.dry("+volumeToUse+").room("+reverbToUse+"));"+"\n")
-            // );
-            // strudelEditor.evaluate();
+            document.dispatchEvent(new CustomEvent("logEvent", { detail: "Playing Strudel"}));
+
             strudelEditor.setCode(procText);
-        } else {
-            console.log("Failed condition checker in handleProcPlay");
+        } catch (e) {
+            document.dispatchEvent(new CustomEvent("logEvent", { detail: "Failed condition checker in handleProcPlay" }));
+            console.log("Failed condition checker in handleProcPlay - " + e);
         }
     }
 

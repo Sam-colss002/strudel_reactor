@@ -104,6 +104,12 @@ html, body {
   border-color: var(--primaryColour) !important;
 }
 
+.badge {
+  color: var(--unSelectedMenuButtonTextColor) !important;
+  background-color: var(--primaryColour) !important;
+  border-color: var(--primaryColour) !important;
+}
+
 
 /* right panel foreground, essentially */
 .bg-foreground, .btn-group, .menu-panel, .row, .input-group, #rightPanel, #leftBottomPanel {
@@ -177,6 +183,15 @@ html, body {
   border-color: var(--tertiaryColour) !important;
 }
 
+.headerLabel {
+  text-align: left !important;
+  color: var(--quaternaryColour) !important;
+  background-color: var(--tertiaryColour) !important;
+  border-color: var(--tertiaryColour) !important;
+  pointer-events: none;
+  max-width:16vh;
+}
+
 .menuRoot {
   background-color: pink !important;
   
@@ -188,7 +203,7 @@ html, body {
   
 }
 
-.HelpPanel, .ControlPanel, .SourcePanel, .ControlPanel, .importExportBtns {
+.HelpPanel, .ControlPanel, .SourcePanel, .ControlPanel, .importExportBtns, i, ul, li {
   background-color: var(--primaryColour) !important;
   border-radius:0px !important;
 }
@@ -290,9 +305,27 @@ html, body {
   vertical-align: top !important;
 }
 
-.menuBtns.btn-group#editorViewBtn {
+.menuBtns.btn-group#editorViewBtnBar {
   background-color: var(--tertiaryColour) !important;
 }
+
+#editorViewLabel {
+  background-color: var(--tertiaryColour) !important;
+  max-width: 12vh !important;
+  text-align: left !important;
+}
+
+#editorViewBtn {
+  border-color: var(--primaryColour) !important;
+  background-color: var(--primaryColour) !important;
+  text-align: left !important;
+}
+
+#editorViewBtn:hover {
+  border-color: var(--tertiaryColour) !important;
+  background-color: var(--tertiaryColour) !important;
+}
+
 
 .menuJustTextBox {
   padding-left:3vh;
@@ -346,12 +379,6 @@ html, body {
   overflow-y:scroll;
 }
 
-
-/* .processedCodePanel, .unprocessedTextPanel {
-  margin-top: 1vh;
-  margin-bottom: 1vh;
-} */
-
 #menuBtns {
   background-color: var(--tertiaryColour) !important;
 }
@@ -380,7 +407,8 @@ html, body {
 /* enforces no borders between input labels & their connected values - sliders, text, etc */
 .input-group-text, .menu_label_value {
   border-color: var(--secondaryColour) !important;
-  background-color: red !important;
+  background-color: var(--secondaryColour) !important;
+  text-align: center !important;
 }
 
 .accordionHeader, .accordion-button {
@@ -401,6 +429,22 @@ html, body {
 .menuBtns {
   width:10px !important;
 }
+
+.mt-5.menuJustTextBox.consoleText p {
+  line-height: 2.25vh;
+  display:inline-block;
+}
+
+.mt-5.menuJustTextBox.consoleText span {
+  border-color: var(--primaryColour) !important;
+  background-color: var(--primaryColour) !important;
+  color: var(--quaternaryColour);
+  text-align: center !important;
+  display: inline-block !important;
+  text-align: left !important;
+  width: 5vh;
+}
+
 
 .input-group-text {
   background-color: var(--tertiaryColour) !important;
@@ -503,11 +547,6 @@ html, body {
 
 .badge {
   pointer-events: none; /* removes ability to click on badges, users click goes thru to the button below */
-}
-
-#editor, #proc, .processedCodePanel {
-  caret-shape: underscore !important;
-  caret-color: red !important;
 }
 
 .cm-line::selection, .cm-content::selection, .textarea::selection {

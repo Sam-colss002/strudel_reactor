@@ -1,7 +1,6 @@
 
+function PlayButtons({ onPlay, onStop }) {
 
-function PlayButtons({ onPlay, onStop}) {
-    
     return (
         <>
             <div className="btn-group" role="group" aria-label="Basic buttons">

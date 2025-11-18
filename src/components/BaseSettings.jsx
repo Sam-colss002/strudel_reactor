@@ -1,4 +1,7 @@
 
+/**
+ * This files readability is irrelevant; it is just hiding hard-coded values.
+ */
 const a = parseFloat(0);
 const b = parseFloat(1);
 const c = parseFloat(0.5);
@@ -20,30 +23,32 @@ const r = parseFloat(0.1);
 const s = ["Debug", "Light", "Dark"];
 const t = parseFloat(1.0);
 const u = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0]
+const v = 100;
 
 const base = {
-    VOLUME_MIN: a,
-    VOLUME_MAX: b,
-    DEFAULT_VOLUME: c,
-    DEFAULT_CPM: d,
-    DEFAULT_THEME: e,
-    DEFAULT_MENU: f,
-    DEFAULT_FONT_SIZE: g,
-    FONT_SIZE_SLIDER_MIN: h,
-    FONT_SIZE_SLIDER_MAX: i,
-    FONT_SIZE_SLIDER_STEP: j,
-    VOLUME_SLIDER_STEP: k,
-    DEBUG_MODE: l,
+    volume_min: a,
+    volume_max: b,
+    volume: c,
+    cpm: d,
+    themeDropdown: e,
+    default_menu: f,
+    codeFontSize: g,
+    font_size_slider_min: h,
+    font_size_slider_max: i,
+    font_size_slider_step: j,
+    volume_slider_step: k,
+    debug_mode: l,
     // replace these with whatever the checkboxes are actually used for later
-    CHECKBOX_1: m,
-    CHECKBOX_2: n,
-    REVERB_MIN: o,
-    REVERB_MAX: p,
-    DEFAULT_REVERB: q,
-    REVERB_SLIDER_STEP: r,
-    THEMES_LIST: s,
-    DEFAULT_SPEED: t,
-    SPEEDS: u
+    checkbox1: m,
+    checkbox2: n,
+    reverb_min: o,
+    reverb_max: p,
+    reverb: q,
+    reverb_slider_step: r,
+    themes_list: s,
+    speed: t,
+    speeds: u,
+    max_logs: v
 };
 
 export default base;

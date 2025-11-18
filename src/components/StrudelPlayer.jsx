@@ -35,68 +35,72 @@ function StrudelPlayer() {
 
     const hasRun = useRef(false);
     const [ songText, setSongText ] = useState("");
-    const [ activeBtn, setActiveBtn ] = useState(base.DEFAULT_MENU);
+    const [ activeBtn, setActiveBtn ] = useState(base.default_menu);
     const [ errorText, setErrorText ] = useState("");
 
     const [ visibleEditor, setVisibleEditor ] = useState(0);
 
     const { volume, setVolume, cpm, setCPM, speed, setSpeed,
         themeDropdown, setThemeDropdown, codeFontSize, 
-        setCodeFontSize, reverb, setReverb, strudelData, setStrudelData } = useContext(StrudelContext);
+        setCodeFontSize, reverb, setReverb, strudelData, setStrudelData, isModified, setIsModified, isPlaying, setIsPlaying } = useContext(StrudelContext);
 
-    let strudelRef = new StrudelSetupClass(stranger_tune, setSongText, volume, cpm, reverb );
-
-    // TODO: unused?
-    const getSettingValues = ReturnSettingValues();
-    function ReturnSettingValues() {
-        return {
-            volume,
-            cpm,
-            reverb
-        }
-    } 
+    let strudelRef = new StrudelSetupClass(stranger_tune, setSongText, volume, cpm, reverb, speed, false );
     
     /** on load the player needs to setup the strudel */
     useEffect((e) => {
         if (!hasRun.current) {
-            
             console.log("\nLoading Strudel Player...");
-            document.getElementById("consolePanelText").innerText = "";
+            
             console.log("hasRun is false; setting up Strudel");
             hasRun.current = true;
-            strudelRef.StrudelSetup(stranger_tune, setSongText, volume, cpm, reverb, speed );
-            strudelRef.setGlobalVolume(volume);
-            strudelRef.setGlobalCPM(cpm);
-            strudelRef.setGlobalReverb(reverb);
-            strudelRef.setGlobalSpeed(speed);
-            
-            /* instead of these, it assign this.(...) to the params in StrudelSetup
-             * and use processedSettings array to prevent updating b4 process button clicked
-             */
+            document.addEventListener("logEvent", handleLogEvent);
+            document.dispatchEvent(new CustomEvent("logEvent", { detail: "Loading Strudel Player..." }));
+            strudelRef.StrudelSetup(stranger_tune, setSongText, volume, cpm, reverb, speed, isModified);
         }
     }, [hasRun.current]);
     
     /** Called upon *every* update. For only very sparing use  */
-    useEffect((e) => {
-        console.log("update triggered");
+    useEffect(() => {
+        if (base.debug_mode) {
+            console.log("update triggered : ");
+            strudelRef.printProcAndNonProc();
+            console.log("getIsModified : " + strudelRef.getIsModified());
+        }
+        setIsModified(strudelRef.getIsModified());
         onHandleFontSize(); // double call wont stop padding from not updating, so this has to be here
     });
 
     /** forces the panels to update text according to current settings */
     function onHandleFontSize() {
-        console.log("a : " + codeFontSize);
+        if (base.debug_mode) { console.log("onHandleSpeed called"); }
         let padding = codeFontSize * 2;
         document.getElementById("editor").style.cssText = `a:display: block; background-color: var(--background); font-size: `+codeFontSize+`px; font-family: monospace;`;
         document.getElementById("proc").style.cssText = `resize: none; font-size: `+codeFontSize+`px;`+`padding-left:`+padding+`px;`;
     }
 
-    function onHandleSpeed() {
-        strudelRef.setGlobalSpeed(speed);
+    function handleLogEvent(e) {
+        console.log("handleLogEvent called");
+        let mainDiv = document.getElementById("consolePanelText");
+        let p = document.createElement("p");
+        let span = document.createElement("span");
+        let br = document.createElement("br");
+        let children = mainDiv.childNodes;
+        let count = Math.floor(children.length/3);
+        p.innerText = e.detail;
+        span.innerText = count+1;
+        //p.innerText += count+(count > 9 ? (count > 99 ? ".." : "....") : ".......")+e.detail;
+        mainDiv.appendChild(br);
+        mainDiv.appendChild(span);
+        mainDiv.appendChild(p);
+        if (count > base.max_logs) {
+            mainDiv.removeChild(children[2]);
+        }
     }
 
     /** resets both LHS panel (editor and processed text) */
     function handleResetCode() {
         console.log("Resetting editor")
+        document.dispatchEvent(new CustomEvent("logEvent", { detail: "Resetting editor" }));
         setSongText(stranger_tune);
         document.getElementById("proc").value=stranger_tune;
         strudelRef.Proc();
@@ -105,73 +109,60 @@ function StrudelPlayer() {
     /** will reset controls to default; not the loaded settings */
     function onHandleResetControls() {
         console.log("Resetting controls");
-        setCodeFontSize(base.DEFAULT_FONT_SIZE);
-        onHandleFontSize();
-        setVolume(base.DEFAULT_VOLUME);
-        setCPM(base.DEFAULT_CPM);
-        setReverb(base.DEFAULT_REVERB);
-        setSpeed(base.DEFAULT_SPEED);
-        setThemeDropdown(base.DEFAULT_THEME);
-        strudelRef.setGlobalVolume(base.DEFAULT_VOLUME);
-        strudelRef.setGlobalCPM(base.DEFAULT_CPM);
-        strudelRef.setGlobalReverb(base.DEFAULT_REVERB);
-        strudelRef.setGlobalSpeed(base.DEFAULT_SPEED);
-        document.getElementById("checkbox_1").checked = document.getElementById("checkbox_1").defaultChecked;
-        document.getElementById("checkbox_2").checked = document.getElementById("checkbox_2").defaultChecked;
+        document.dispatchEvent(new CustomEvent("logEvent", { detail: "Resetting controls" }));
+        mapDataToSettings(base);
     }
 
-    // currently unused, and can be messy if used
-    const onHandleGeneric = (e) => {
-        //console.log("\nSTOP CALLING onHandleGeneric!!");
-        return;
-        let idString = e.target.id;
-        // debug prints
-        if (idString.startsWith("dropdown_")) {
-            console.log("onHandleChangeRequest called in StrudelPlayer - " + e.target.id + " : " + document.getElementById(e.target.id).innerHTML);
-        } else if (idString.startsWith("checkbox_")) {
-            console.log("onHandleChangeRequest called in StrudelPlayer - " + e.target.id + " : " + e.target.checked);
-        }  else {
-            console.log("onHandleChangeRequest called in StrudelPlayer - " + e.target.id + " : " + e.target.value);
-            if (idString.startsWith("volume")) {
-                console.log("volume related change ");
-            }
-        }
+    const onHandleSongEdit = () => {
+        if (base.debug_mode) { console.log("onHandleSongEdit called"); }
+        markAsModified();
     }
 
-    const onHandleReverb = (e) => {
-        let newReverb = parseFloat(e.target.value);
-        setReverb(newReverb);
-        strudelRef.setGlobalReverb(newReverb);
+    function markAsModified() {
+        setIsModified(true);
+        strudelRef.setIsModified(true);
     }
 
-    const onHandleVolume = (e) => {
-        //let newVolume = parseFloat(e.target.value);
-        //setVolume(newVolume);
-        strudelRef.setGlobalVolume(volume);
+    const onHandleSpeed = () => {
+        if (base.debug_mode) { console.log("onHandleSpeed called"); }
+        markAsModified();
+        strudelRef.speed = speed;
+    }
+
+    const onHandleReverb = () => {
+        if (base.debug_mode) { console.log("onHandleReverb called"); }
+        markAsModified();
+        strudelRef.reverb = reverb;
+    }
+
+    const onHandleVolume = () => {
+        if (base.debug_mode) { console.log("onHandleVolume called"); }
+        markAsModified();
+        strudelRef.volume = volume;
     };
 
-    const onHandleCPM = (e) => {
-        let newCPM = parseFloat(e.target.value);
-        setCPM(newCPM);
-        strudelRef.setGlobalCPM(newCPM);
+    const onHandleCPM = () => {
+        if (base.debug_mode) { console.log("onHandleCPM called"); }
+        markAsModified();
+        strudelRef.cpm = cpm;
     };
 
     /** creates JSON-valid data to save as a JSON file */
     function onHandleExportJSON() {
         console.log("Exporting JSON...")
+        document.dispatchEvent(new CustomEvent("logEvent", { detail: "Exporting JSON..." }));
         let exportJSON = {
             "volume": volume,
             "cpm": cpm,
-            "fontSize": codeFontSize,
-            "theme": themeDropdown,
+            "codeFontSize": codeFontSize,
+            "themeDropdown": themeDropdown,
             "checkbox1": document.getElementById("checkbox_1").checked,
             "checkbox2": document.getElementById("checkbox_2").checked,
             "reverb": reverb,
             "speed": speed
         };
 
-        const localeTime = new Date().toLocaleTimeString();
-        let fileName = "Strudel_Settings_"+localeTime;
+        let fileName = "Strudel_Settings_"+(new Date().toLocaleTimeString());
         const blob = new Blob([JSON.stringify(exportJSON, null, 2)], { type: 'application/json' });
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -187,11 +178,13 @@ function StrudelPlayer() {
 
         if (!file) {
             alert("No file selected. Please choose a JSON file.", "error");
+            document.dispatchEvent(new CustomEvent("logEvent", { detail: "No file selected. Please choose a JSON file." }));
             return;
         }
 
         if (!file.type.endsWith("json")) {
             alert("Unsupported file type. Please select a JSON file.", "error");
+            document.dispatchEvent(new CustomEvent("logEvent", { detail: "Unsupported file type. Please select a JSON file." }));
             return;
         }
 
@@ -201,21 +194,46 @@ function StrudelPlayer() {
             onHandleLoadSettings(readableJSON);
         };
         reader.onerror = () => {
+            document.dispatchEvent(new CustomEvent("logEvent", { detail: "Error reading the file. Please try again." }));
             alert("Error reading the file. Please try again.", "error");
         };
         // this must be *here* for reader.onload to work; it sets reader.result
         reader.readAsText(file);
     }
 
+    /** Called whenever mass setting changes are required (e.g., on import, reset)  */
+    function mapDataToSettings(data) {
+        console.log("mapDataToSettings called");
+        if (!data) {
+            console.log("mapDataToSettings received an invalid data object!");
+            return;
+        }
+        onHandleFontSize();
+        setCodeFontSize(data.codeFontSize);
+        setVolume(data.volume);
+        setCPM(data.cpm);
+        setThemeDropdown(data.themeDropdown);
+        setSpeed(data.speed);
+        setReverb(data.reverb);
+        strudelRef.volume = data.volume;
+        strudelRef.cpm = data.cpm;
+        strudelRef.reverb = data.reverb;
+        strudelRef.speed = data.speed;
+        if (base.debug_mode) {
+            document.getElementById("checkbox_1").checked = data.checkbox1;
+            document.getElementById("checkbox_2").checked = data.checkbox2;
+        }
+        markAsModified();
+    }
+
     /** Called upon successful file import; checks for required keys in settings config file, and that values are within bounds.  */
     function onHandleLoadSettings(settingsJSON) {
         console.log("onHandleLoadSettings called");
         //console.log("settingsJSON:\n" + settingsJSON);
-        const neededKeysList = [ "volume", "cpm", "fontSize", "theme", "checkbox1", "checkbox2", "reverb" , "speed" ];
-        // d: data; kept short for simplicity sake
+        const neededKeysList = [ "volume", "cpm", "codeFontSize", "themeDropdown", "checkbox1", "checkbox2", "reverb" , "speed" ];
         const data = {
-            volume:settingsJSON["volume"], cpm:settingsJSON["cpm"], fontSize:settingsJSON["fontSize"], 
-            theme:settingsJSON["theme"], checkbox1:settingsJSON["checkbox1"], checkbox2:settingsJSON["checkbox2"], 
+            volume:settingsJSON["volume"], cpm:settingsJSON["cpm"], codeFontSize:settingsJSON["codeFontSize"], 
+            themeDropdown:settingsJSON["themeDropdown"], checkbox1:settingsJSON["checkbox1"], checkbox2:settingsJSON["checkbox2"], 
             reverb:settingsJSON["reverb"], speed:settingsJSON["speed"] };
         if (data.size !== neededKeysList.size) { console.log("Missmatch in neededKeysList:data comparison!"); }
 
@@ -228,21 +246,9 @@ function StrudelPlayer() {
         console.log("Loaded JSON data keys are valid and the corresponding data values are within acceptable limits.");
 
         try {
-            //setCodeFontSize(settingsJSON["fontSize"]);
-            onHandleFontSize();
-            setVolume(data.volume);
-            setCPM(settingsJSON["cpm"]);
-            setThemeDropdown(settingsJSON["theme"]);
-            strudelRef.setGlobalVolume(settingsJSON["volume"]);
-            strudelRef.setGlobalCPM(settingsJSON["cpm"]);
-            setReverb(settingsJSON["reverb"]);
-            strudelRef.setGlobalReverb(settingsJSON["cpm"]);
-            setSpeed(settingsJSON["speed"]);
-            strudelRef.setGlobalSpeed(settingsJSON["speed"]);
-            if (base.DEBUG_MODE) {
-                document.getElementById("checkbox_1").checked = settingsJSON["checkbox1"];
-                document.getElementById("checkbox_2").checked = settingsJSON["checkbox2"];
-            }
+            document.dispatchEvent(new CustomEvent("logEvent", { detail: "Loaded JSON data keys are valid and the corresponding data values are within acceptable limits. Loading data..." }));
+            mapDataToSettings(data);
+            
         } catch (e) {
             console.log("Somehow failed the try-catch to load settings...?");
         }
@@ -281,6 +287,7 @@ function StrudelPlayer() {
                 count++;
             }
             alert(alertText);
+            document.dispatchEvent(new CustomEvent("logEvent", { detail: alertText }));
             return false;
         }
     }
@@ -290,51 +297,25 @@ function StrudelPlayer() {
         console.log("Verifying key-values are within bounds...");
         let alertText = "Imported file contains invalid data.";
         let i = 0;
-        if (!( data.volume < base.VOLUME_MAX ))            {i++;alertText+=("\n"+i+" : volume ("+data.volume+") > max ("+base.VOLUME_MAX+")"); }
-        if (!( data.volume > base.VOLUME_MIN ))            {i++;alertText+=("\n"+i+" : volume ("+data.volume+") < min ("+base.VOLUME_MIN+")"); }
-        if (!( data.speed < Math.max(...base.SPEEDS) ))    {i++;alertText+=("\n"+i+" : speed ("+data.speed+") > max ("+Math.max(...base.SPEEDS)+")"); }
-        if (!( data.speed > Math.min(...base.SPEEDS) ))    {i++;alertText+=("\n"+i+" : speed ("+data.speed+") < min ("+Math.min(...base.SPEEDS)+")"); }
-        if (!( data.fontSize < base.FONT_SIZE_SLIDER_MAX )){i++;alertText+=("\n"+i+" : fontSize ("+data.fontSize+") > max ("+base.FONT_SIZE_SLIDER_MAX+")"); }
-        if (!( data.fontSize > base.FONT_SIZE_SLIDER_MIN )){i++;alertText+=("\n"+i+" : fontSize ("+data.fontSize+") < min ("+base.FONT_SIZE_SLIDER_MIN+")"); }
-        if (!( base.THEMES_LIST.includes(data.theme) ))    {i++;alertText+=("\n"+i+" : no theme"); }
-        if (!( [true, false].includes(data.checkbox1) ))   {i++;alertText+=("\n"+i+" : no checkbox1 value"); }
-        if (!( [true, false].includes(data.checkbox2) ))   {i++;alertText+=("\n"+i+" : no checkbox2 value"); }
-        if (!( data.reverb < base.REVERB_MAX ))            {i++;alertText+=("\n"+i+" : reverb ("+data.reverb+") > max ("+base.REVERB_MAX+")"); }
-        if (!( data.reverb >= base.REVERB_MIN ))           {i++;alertText+=("\n"+i+" : reverb ("+data.reverb+") < min ("+base.REVERB_MIN+")"); }
+        if (!( data.volume < base.volume_max ))                {i++;alertText+=("\n"+i+" : volume ("+data.volume+") > max ("+base.volume_max+")"); }
+        if (!( data.volume > base.volume_min ))                {i++;alertText+=("\n"+i+" : volume ("+data.volume+") < min ("+base.volume_min+")"); }
+        if (!( data.speed < Math.max(...base.speeds) ))        {i++;alertText+=("\n"+i+" : speed ("+data.speed+") > max ("+Math.max(...base.speeds)+")"); }
+        if (!( data.speed > Math.min(...base.speeds) ))        {i++;alertText+=("\n"+i+" : speed ("+data.speed+") < min ("+Math.min(...base.speeds)+")"); }
+        if (!( data.codeFontSize < base.font_size_slider_max )){i++;alertText+=("\n"+i+" : codeFontSize ("+data.codeFontSize+") > max ("+base.font_size_slider_max+")"); }
+        if (!( data.codeFontSize > base.font_size_slider_min )){i++;alertText+=("\n"+i+" : codeFontSize ("+data.codeFontSize+") < min ("+base.font_size_slider_min+")"); }
+        if (!( base.themes_list.includes(data.themeDropdown) )){i++;alertText+=("\n"+i+" : no theme"); }
+        if (!( [true, false].includes(data.checkbox1) ))       {i++;alertText+=("\n"+i+" : no checkbox1 value"); }
+        if (!( [true, false].includes(data.checkbox2) ))       {i++;alertText+=("\n"+i+" : no checkbox2 value"); }
+        if (!( data.reverb < base.reverb_max ))                {i++;alertText+=("\n"+i+" : reverb ("+data.reverb+") > max ("+base.reverb_max+")"); }
+        if (!( data.reverb >= base.reverb_min ))               {i++;alertText+=("\n"+i+" : reverb ("+data.reverb+") < min ("+base.reverb_min+")"); }
         if (i != 0) { alert(alertText); }
         return (i != 0 ? false : true);
     }
 
-    // THIS IS COPY AND PASTED FOR REFERENCE SAKE;
-    /* needs to properly register closes
-     * needs to properly alert ONCE
-     * probably gonna be using custom events/button triggers, this is just for testing
-    */
-    // const alertPlaceholder = document.getElementById('liveAlertPlaceholder');
-    // const appendAlert = (message, type) => {
-    //     const wrapper = document.createElement('div');
-    //     wrapper.innerHTML = [
-    //         `<div class="alert alert-${type} alert-dismissible" role="alert">`,
-    //         `   <div>${message}</div>`,
-    //         '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
-    //         '</div>'
-    //     ].join('');
-
-    //     alertPlaceholder.append(wrapper);
-    // }
-
-    // const alertTrigger = document.getElementById('liveAlertBtn');
-    // if (alertTrigger) {
-    //     alertTrigger.addEventListener('click', () => {
-    //         appendAlert('Nice, you triggered this alert message!', 'success');
-    //     })
-    // }
-    // if (alertTrigger) {
-    //     alertTrigger.addEventListener('btn-close', () => {
-    //         console.log("close!!");
-    //         appendAlert('Nice, you triggered this alert message!', 'success');
-    //     })
-    // }
+    // expanded upon as I need to remove badge on click
+    function handleModifyBadge() {
+        setIsModified(strudelRef.getIsModified());
+    }
 
 
     return (
@@ -344,7 +325,7 @@ function StrudelPlayer() {
                 <div className="h2 b">Strudel Demo</div>
                 <div className="playButtons">
                     <PlayButtons onPlay={strudelRef.handlePlay} onStop={strudelRef.handleStop} />
-                    <ProcButtons onProc={strudelRef.handleProc} onProcPlay={strudelRef.handleProcPlay} onReset={strudelRef.handleReset} />
+                    <ProcButtons onProc={strudelRef.handleProc} handleModifyBadge={handleModifyBadge} onProcPlay={strudelRef.handleProcPlay} onReset={strudelRef.handleReset} />
                 </div>
             </div>
             {/* all content below header bar */}
@@ -352,10 +333,14 @@ function StrudelPlayer() {
                 <div className="body-left">
                     
                     <div className="menuNavBar row">
-                        <div className="menuBtns btn-group col" role="group" id="editorViewBtn" aria-label="Menu buttons">
-                            <button className="btn btn-unselected menuBtn" onClick={(e) => {
+                        <div className="menuBtns btn-group col" role="group" id="editorViewBtnBar" aria-label="Menu buttons">
+                            <span className="btn headerLabel" id="editorViewLabel">Viewing</span>
+                            <button className="btn btn-unselected menuBtn " id="editorViewBtn" onClick={(e) => {
                                 setVisibleEditor((visibleEditor === 1) ? 0 : 1); }}>{(visibleEditor == 0) ? "Preprocessed Code" : "Processed Code"}
                             </button>
+                        </div>
+                        <div className="headerLabel col">
+
                         </div>
                     </div>
 
@@ -364,14 +349,10 @@ function StrudelPlayer() {
 
                             <div className="unprocessedTextPanel" id="codePanel" 
                             style={{ display: (visibleEditor === 0) ? 'block' : 'none'}}>
-                                {/* TODO: should i keep both? both allows user to play last processed song whilst still editing it
-                                it does also mention preprocessing code in the  specs; I think i'll just leave it as is for now
-                                functionality with both is kinda wack, edits in proctext box are ignored
-                                */}
-                                <PreprocessTextArea songText={songText} setSongText={setSongText} />
+                                <PreprocessTextArea songText={songText} setSongText={setSongText} onHandleSongEdit={onHandleSongEdit} />
                             </div>
                             <div className="processedCodePanel" id="codePanel"
-                            style={{ display: (visibleEditor === 1 ) ? 'block' : 'none' }}>
+                            style={{ display: (visibleEditor === 1 ) ? 'block' : 'none'}}>
                                 <div className="editor" id="editor"/>
                                 
                             </div>
@@ -385,7 +366,7 @@ function StrudelPlayer() {
 
                 <div className="body-right">
                     <div className="menuNavBar row">
-                        <MenuButtons theme={themeDropdown} defaultValue={activeBtn} onClick={(e) => {
+                        <MenuButtons theme={themeDropdown} defaultValue={activeBtn} isModified={isModified} onClick={(e) => {
                             setActiveBtn(e)
                         }}/>
                     </div>
@@ -424,8 +405,6 @@ function StrudelPlayer() {
                                                     setCPM={setCPM}
                                                     speed={speed}
                                                     setSpeed={setSpeed}
-
-                                                    onHandleGeneric={onHandleGeneric}
                                                     onHandleVolume={onHandleVolume}
                                                     onHandleCPM={onHandleCPM}
                                                     onHandleSpeed={onHandleSpeed}
@@ -442,7 +421,6 @@ function StrudelPlayer() {
                                                     reverb={reverb}
                                                     setReverb={setReverb}
                                                     onHandleReverb={onHandleReverb}
-                                                    onHandleGeneric={onHandleGeneric}
                                                 />
                                             </Accordion.Body>
                                         </Accordion.Item>
@@ -457,8 +435,6 @@ function StrudelPlayer() {
                                                     setCodeFontSize={setCodeFontSize}
                                                     themeDropdown={themeDropdown}
                                                     setThemeDropdown={setThemeDropdown}
-
-                                                    onHandleGeneric={onHandleGeneric}
                                                     onHandleResetControls={onHandleResetControls}
                                                     onHandleFontSize={onHandleFontSize}
                                                 />
